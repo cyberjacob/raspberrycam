@@ -60,6 +60,17 @@ int main(void) {
 	src.option     = config->option;
 	*/
 	
+	src.input = NULL;
+	src.tuner = 0;
+	src.frequency = 0;
+	src.delay = 0;
+	src.use_read = 0;
+	src.list = 0;
+	src.width = 384;
+	src.height = 288;
+	src.fps = 0;
+	src.palette = SRC_PAL_ANY;
+	
 	char *device = strdup("/dev/video0");
 	
 	printf("--- Opening %s...", device);
