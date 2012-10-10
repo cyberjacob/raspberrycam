@@ -2,8 +2,8 @@
 // Name        : RaspberryCam.cpp
 // Author      : Flechner Romain
 // Version     :
-// Copyright   : Open source
-// Description : Hello World in C, Ansi-style
+// Copyright   : Open source based on fswebcam and v4l source codes
+// Description : RaspberryCam in C, Ansi-style
 //============================================================================
 
 #include <stdio.h>
