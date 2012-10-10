@@ -4,7 +4,7 @@ OBJS =		RaspberryCam.o
 
 LIBS =
 
-TARGET =	RaspberryCam.exe
+TARGET =	RaspberryCam
 
 $(TARGET):	$(OBJS)
 	$(CXX) -o $(TARGET) $(OBJS) $(LIBS)
