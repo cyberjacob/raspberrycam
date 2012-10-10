@@ -70,6 +70,7 @@ int main(void) {
 	src.height = 288;
 	src.fps = 0;
 	src.palette = SRC_PAL_ANY;
+	src.option = NULL;
 	
 	char *device = strdup("/dev/video0");
 	
