@@ -33,6 +33,9 @@
 #define FG_CYAN   (36)
 #define FG_GREY   (37)
 
+#define PACKAGE_NAME "RaspberryCam"
+
+
 char use_syslog = 0;
 int fd_log = STDERR_FILENO;
 
