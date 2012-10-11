@@ -60,7 +60,7 @@ int main(void) {
 	src.option     = config->option;
 	*/
 	
-	src.input = NULL;
+	src.input = strdup("0");
 	src.tuner = 0;
 	src.frequency = 0;
 	src.delay = 0;

@@ -606,6 +606,8 @@ int src_v4l2_set_pix_format(src_t *src)
 				src->height = s->fmt.fmt.pix.height;
                         }
 			
+			MSG("s->fd: %d", s->fd);
+			
 			if(ioctl(s->fd, VIDIOC_S_FMT, &s->fmt) == -1)
 			{
 				ERROR("Error setting pixel format.");
