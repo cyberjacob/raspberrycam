@@ -71,6 +71,7 @@ int main(void) {
 	src.fps = 0;
 	src.palette = SRC_PAL_ANY;
 	src.option = NULL;
+	src.timeout = 10;
 	
 	char *device = strdup("/dev/video0");
 	

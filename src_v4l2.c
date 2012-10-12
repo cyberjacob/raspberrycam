@@ -914,6 +914,8 @@ static int src_v4l2_grab(src_t *src)
 {
 	src_v4l2_t *s = (src_v4l2_t *) src->state;
 	
+	MSG("src->timeout: %d", src->timeout);
+	
 	if(src->timeout)
 	{
 		fd_set fds;
@@ -942,6 +944,8 @@ static int src_v4l2_grab(src_t *src)
 		}
 	}
 	
+	MSG("s->map: %d", s->map);
+	
 	if(s->map)
 	{
 		if(s->pframe >= 0)
@@ -957,6 +961,8 @@ static int src_v4l2_grab(src_t *src)
 		
 		s->buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 		s->buf.memory = V4L2_MEMORY_MMAP;
+		
+		MSG("s->fd: %d", s->fd);
 		
 		if(ioctl(s->fd, VIDIOC_DQBUF, &s->buf) == -1)
 		{
