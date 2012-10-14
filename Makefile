@@ -4,7 +4,7 @@ LDFLAGS = -lgd
 
 
 OBJS =		RaspberryCam.o log.o src.o src_file.o src_raw.o src_test.o src_v4l1.o src_v4l2.o 
-OBJS +=		parse.o
+OBJS +=		parse.o dec_jpeg.o
 
 LIBS =
 
@@ -12,7 +12,7 @@ TARGET =	RaspberryCam
 
 $(TARGET):	$(OBJS)
 ##	$(CXX) -o $(TARGET) $(OBJS) $(LIBS)
-	$(CC) -o $(TARGET) $(OBJS) $(LIBS)
+	$(CC) -o $(TARGET) $(OBJS) $(LIBS) $(LDFLAGS)
 
 all:	$(TARGET)
 
