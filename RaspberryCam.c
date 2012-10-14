@@ -10,20 +10,21 @@
 #include "config.h"
 #endif
 
+#include "RaspberryCam.h"
+
 #include <stdio.h>
 #include <getopt.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
+#include <gd.h>
 #include <errno.h>
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <gd.h>
-#include <stdint.h>
 
-typedef uint32_t avgbmp_t;
+//typedef uint32_t avgbmp_t;
 
 #include "log.h"
 #include "src.h"
@@ -35,9 +36,18 @@ int main(void) {
 	//uint32_t frame;
 	//uint32_t x, y;
 	avgbmp_t *abitmap, *pbitmap;
+	gdImage *image, *original;
 	//uint8_t modified;
-	
 	src_t src;
+	
+	uint32_t frame;
+	uint32_t x, y;
+	//avgbmp_t *abitmap, *pbitmap;
+	//gdImage *image, *original;
+	uint8_t modified;
+	//src_t src;
+	
+	int frames = 1;
 	
 	
 	/* Record the start time. */
@@ -91,7 +101,7 @@ int main(void) {
 	FILE *f;
 	
 	char *dumpframe = "grab.raw";
-	
+	/*
 	printf("Dumping raw frame to '%s'...", dumpframe);
 	
 	f = fopen(dumpframe, "wb");
@@ -102,6 +112,50 @@ int main(void) {
 		fwrite(src.img, 1, src.length, f);
 		fclose(f);
 	}
+	*/
+	
+	fswc_add_image_jpeg(&src, abitmap);
+	
+	src_close(&src);
+	
+	/* Copy the average bitmap image to a gdImage. */
+	original = gdImageCreateTrueColor(src.width, src.height);
+	if(!original)
+	{
+		ERROR("Out of memory.");
+		free(abitmap);
+		return(-1);
+	}
+	
+	
+	pbitmap = abitmap;
+		
+	for(y = 0; y < src.height; y++)
+		for(x = 0; x < src.width; x++)
+		{
+			int px = x;
+			int py = y;
+			int colour;
+			
+			colour  = (*(pbitmap++) / frames) << 16;
+			colour += (*(pbitmap++) / frames) << 8;
+			colour += (*(pbitmap++) / frames);
+			
+			gdImageSetPixel(original, px, py, colour);
+		}
+	
+	free(abitmap);
+	
+	/* Make a copy of the original image. */
+	image = fswc_gdImageDuplicate(original);
+	if(!image)
+	{
+		ERROR("Out of memory.");
+		gdImageDestroy(image);
+		return(-1);
+	}
+	
+	//TODO: save in file
 	
 	
 	puts("Bye bye ...");
