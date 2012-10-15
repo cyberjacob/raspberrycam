@@ -40,6 +40,30 @@ gdImage* fswc_gdImageDuplicate(gdImage* src)
 	return(dst);
 }
 
+void mySavePng(char *filename, gdImagePtr im)
+{
+  FILE *out;
+  int size;
+  char *data;
+  out = fopen(filename, "wb");
+  if (!out) {
+    /* Error */
+  }
+  //data = (char *) gdImagePngPtr(im, &size);
+  data = (char *) gdImageJpegPtr(im, &size, 100);
+  
+  if (!data) {
+    /* Error */
+  }
+  if (fwrite(data, 1, size, out) != size) {
+    /* Error */
+  }
+  if (fclose(out) != 0) {
+    /* Error */
+  }
+  gdFree(data);  
+}
+
 int main(void) {
 	avgbmp_t *abitmap, *pbitmap;
 	gdImage *image, *original;
@@ -148,7 +172,9 @@ int main(void) {
 	}
 	
 	printf("Writing JPEG image to '%s'.", filename);
-	gdImageJpeg(im, f, 95);
+	gdImageJpeg(im, f, 90);
+	
+	mySavePng("out2.jpg", im);
 	
 	if(f != stdout) fclose(f);
 	
