@@ -24,8 +24,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-//typedef uint32_t avgbmp_t;
-
 #include "log.h"
 #include "src.h"
 #include "parse.h"
@@ -43,44 +41,16 @@ gdImage* fswc_gdImageDuplicate(gdImage* src)
 }
 
 int main(void) {
-	
-	//uint32_t frame;
-	//uint32_t x, y;
 	avgbmp_t *abitmap, *pbitmap;
 	gdImage *image, *original;
-	//uint8_t modified;
 	src_t src;
-	
 	uint32_t frame;
 	uint32_t x, y;
-	//avgbmp_t *abitmap, *pbitmap;
-	//gdImage *image, *original;
 	uint8_t modified;
-	//src_t src;
 	gdImage *im;
-	
 	int frames = 1;
 	
-	
-	/* Record the start time. */
-	//config->start = time(NULL);
-	
-	/* Set source options... */
 	memset(&src, 0, sizeof(src));
-	/*
-	src.input      = config->input;
-	src.tuner      = config->tuner;
-	src.frequency  = config->frequency;
-	src.delay      = config->delay;
-	src.timeout    = 10; //seconds
-	src.use_read   = config->use_read;
-	src.list       = config->list;
-	src.palette    = config->palette;
-	src.width      = config->width;
-	src.height     = config->height;
-	src.fps        = config->fps;
-	src.option     = config->option;
-	*/
 	
 	src.input = strdup("0");
 	src.tuner = 0;
@@ -88,12 +58,17 @@ int main(void) {
 	src.delay = 0;
 	src.use_read = 0;
 	src.list = 0;
-	src.width = 384;
-	src.height = 288;
 	src.fps = 0;
 	src.palette = SRC_PAL_ANY;
 	src.option = NULL;
 	src.timeout = 10;
+	/*
+	src.width = 384;
+	src.height = 288;
+	*/
+	
+	src.width = 640;
+	src.height = 480;
 	
 	char *device = strdup("/dev/video0");
 	
@@ -111,20 +86,6 @@ int main(void) {
 	src_grab(&src);
 	
 	FILE *f;
-	
-	char *dumpframe = "grab.raw";
-	/*
-	printf("Dumping raw frame to '%s'...", dumpframe);
-	
-	f = fopen(dumpframe, "wb");
-	if(!f)
-		printf("fopen: %s", strerror(errno));
-	else
-	{
-		fwrite(src.img, 1, src.length, f);
-		fclose(f);
-	}
-	*/
 	
 	fswc_add_image_jpeg(&src, abitmap);
 	
@@ -166,8 +127,6 @@ int main(void) {
 		gdImageDestroy(image);
 		return(-1);
 	}
-	
-	//TODO: save in file
 	
 	/* Create a temporary image buffer. */
 	im = fswc_gdImageDuplicate(image);
