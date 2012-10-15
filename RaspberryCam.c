@@ -30,6 +30,17 @@
 #include "src.h"
 #include "parse.h"
 
+gdImage* fswc_gdImageDuplicate(gdImage* src)
+{
+	gdImage *dst;
+	
+	dst = gdImageCreateTrueColor(gdImageSX(src), gdImageSY(src));
+	if(!dst) return(NULL);
+	
+	gdImageCopy(dst, src, 0, 0, 0, 0, gdImageSX(src), gdImageSY(src));
+	
+	return(dst);
+}
 
 int main(void) {
 	
@@ -46,6 +57,7 @@ int main(void) {
 	//gdImage *image, *original;
 	uint8_t modified;
 	//src_t src;
+	gdImage *im;
 	
 	int frames = 1;
 	
@@ -122,7 +134,7 @@ int main(void) {
 	original = gdImageCreateTrueColor(src.width, src.height);
 	if(!original)
 	{
-		ERROR("Out of memory.");
+		puts("Out of memory.");
 		free(abitmap);
 		return(-1);
 	}
@@ -150,13 +162,38 @@ int main(void) {
 	image = fswc_gdImageDuplicate(original);
 	if(!image)
 	{
-		ERROR("Out of memory.");
+		puts("Out of memory.");
 		gdImageDestroy(image);
 		return(-1);
 	}
 	
 	//TODO: save in file
 	
+	/* Create a temporary image buffer. */
+	im = fswc_gdImageDuplicate(image);
+	if(!im)
+	{
+		puts("Out of memory.");
+		return(-1);
+	}
+	
+	char *filename = "out.jpg";
+	
+	f = fopen("out.jpg", "wb");
+	if(!f)
+	{
+		printf("Error opening file for output: %s", filename);
+		printf("fopen: %s", strerror(errno));
+		gdImageDestroy(im);
+		return(-1);
+	}
+	
+	printf("Writing JPEG image to '%s'.", filename);
+	gdImageJpeg(im, f, 95);
+	
+	if(f != stdout) fclose(f);
+	
+	gdImageDestroy(im);
 	
 	puts("Bye bye ...");
 	return EXIT_SUCCESS;
