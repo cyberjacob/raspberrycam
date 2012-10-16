@@ -67,6 +67,8 @@ void SaveImageToJpegFile(char *filename, gdImagePtr im)
 pictureBuffer TakePicture(char *device, int width, int height, int jpegQuantity) {
 	pictureBuffer buffer;
 	
+	//freopen("/dev/null", "w", stdout);
+	
 	memset(&buffer, 0, sizeof(buffer));
 	
 	gdImage *image = grabPicture(strdup(device), width, height);
