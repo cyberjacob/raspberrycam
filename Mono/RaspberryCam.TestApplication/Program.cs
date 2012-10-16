@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
+﻿using System.IO;
 
 namespace RaspberryCam.TestApplication
 {
@@ -11,20 +6,16 @@ namespace RaspberryCam.TestApplication
     {
         static void Main(string[] args)
         {
-            var pictureBuffer = RaspberryCamInterop.TakePicture("/dev/video0", 640, 480, 100);
+            //var camDriver = new CamDriver("/dev/video0");
+            //var data = camDriver.TakePicture(new PictureSize(640, 480), Percent.MinValue);
 
-            Console.WriteLine("Picture Buffer length: {0}", pictureBuffer.Size);
-            //Console.WriteLine("Buffer data length: {0}", pictureBuffer.Data.Length);
+            //File.WriteAllBytes("test2.jpg", data);
 
-            //var c = pictureBuffer.Data[pictureBuffer.Size - 1];
+            var cameras = Cameras.DeclareDevice()
+                .Named("Camera 1").WithDevicePath("/dev/video0")
+                .Memorize();
 
-            var data = new byte[pictureBuffer.Size];
-
-            Marshal.Copy(pictureBuffer.Data, data, 0, pictureBuffer.Size);
-
-            Console.WriteLine("Buffer data length: {0}", data.Length);
-
-            File.WriteAllBytes("test.jpg", data);
+            cameras.Get("Camera 1").SavePicture(new PictureSize(640, 480), "Test3.jpg", 20);
         }
     }
 }
