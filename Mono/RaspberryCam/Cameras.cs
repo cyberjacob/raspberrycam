@@ -18,5 +18,10 @@ namespace RaspberryCam
         {
             return camManager.Get(name);
         }
+
+        public CamDriver Default
+        {
+            get { return camManager.Default; }
+        }
     }
 }

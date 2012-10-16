@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace RaspberryCam
 {
@@ -28,6 +29,17 @@ namespace RaspberryCam
                 return null;
 
             return driver;
+        }
+
+        public CamDriver Default
+        {
+            get
+            {
+                if (!drivers.Keys.Any())
+                    return null;
+
+                return drivers.First().Value;
+            }
         }
     }
 }
