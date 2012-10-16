@@ -32,11 +32,7 @@ namespace RaspberryCam.Servers
 
             while (true)
             {
-                Console.Write("Waiting for a connection... ");
-
                 var client = listener.AcceptTcpClient();
-                Console.WriteLine("Connected!");
-
                 HandleClient(client);
             }
         }
@@ -44,9 +40,7 @@ namespace RaspberryCam.Servers
         private void HandleClient(TcpClient client)
         {
             var bytes = new byte[256];
-
             var stream = client.GetStream();
-
             int i;
             var data = string.Empty;
 
@@ -65,22 +59,16 @@ namespace RaspberryCam.Servers
 
             var lines = data.Split(new[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
             var httpMethodQuery = lines[0].ParseHttpMethodQuery();
-
-            Console.WriteLine("httpMethodQuery.Query: {0}", httpMethodQuery.Query);
-
             var urlParameters = httpMethodQuery.Query.ParseUrlParameters();
 
             switch (httpMethodQuery.Path)
             {
                 case VideoServerCommands.TakePicture:
-
                     Console.WriteLine("TakePicture: {0}", httpMethodQuery.PathAndQuery);
-
                     TakePicture(urlParameters, client.GetStream());
                     break;
             }
             
-
             client.Close();
         }
 
@@ -102,8 +90,6 @@ namespace RaspberryCam.Servers
                 return;
 
             var data = camDriver.TakePicture(new PictureSize(width, height));
-
-            //context.Response.ContentType = "image/jpeg";
 
             using (var writer = new BinaryWriter(responseStream))
             {
