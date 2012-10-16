@@ -1,0 +1,23 @@
+glob:[Bb]in/*
+glob:*_ReSharper.*
+glob:**\[Bb]in\
+glob:**\[Oo]bj\
+glob:**[Aa]pp.config
+glob:[Ww]eb.config
+glob:**.config.old
+glob:*.ReSharper.*
+glob:*.csproj.user
+glob:*.suo
+glob:*.vssscc
+glob:*.vspscc
+glob:*.FileListAbsolute.txt
+glob:**/AssemblyFileVersion.cs
+glob:*.csproj.vs10x
+glob:*.TeamCity.user
+glob:*.ReSharper
+syntax: glob
+[Aa]uto[Tt]est.config
+*.docstates
+*.dotCover
+*.DotSettings.user
+packages/

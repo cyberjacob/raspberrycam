@@ -11,8 +11,8 @@ LIBS =
 TARGET =	RaspberryCam
 
 $(TARGET):	$(OBJS)
-##	$(CXX) -o $(TARGET) $(OBJS) $(LIBS)
-	$(CC) -o $(TARGET) $(OBJS) $(LIBS) $(LDFLAGS)
+#	$(CC) -o $(TARGET) $(OBJS) $(LIBS) $(LDFLAGS)
+	$(CC) -shared -fPIC $(OBJS) $(LIBS) $(LDFLAGS) -o $(TARGET).so
 
 all:	$(TARGET)
 
