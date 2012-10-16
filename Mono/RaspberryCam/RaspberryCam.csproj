@@ -48,7 +48,10 @@
     <Compile Include="Interop\RaspberryCamInterop.cs" />
     <Compile Include="PictureSize.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Servers\HttpMethodQuery.cs" />
     <Compile Include="Servers\HttpVideoServer.cs" />
+    <Compile Include="Servers\ParsingHelper.cs" />
+    <Compile Include="Servers\TcpVideoServer.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

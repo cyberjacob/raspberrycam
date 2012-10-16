@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
-using System.Web;
 
 namespace RaspberryCam.Servers
 {
@@ -14,7 +10,7 @@ namespace RaspberryCam.Servers
         private readonly Cameras cameras;
         private readonly HttpListener listener;
 
-        public HttpVideoServer(int port, Cameras cameras) : this(new []{"http://+:" + port + "/"})
+        public HttpVideoServer(int port, Cameras cameras) : this(new []{"http://home.romcyber.com:" + port + "/"})
         {
             this.cameras = cameras;
         }
@@ -38,6 +34,9 @@ namespace RaspberryCam.Servers
         {
             listener.Start();
             listener.BeginGetContext(OnGetContext, null);
+
+            //var context = listener.GetContext();
+            //ProcessRequest(context);
         }
 
         public void Stop()
@@ -82,6 +81,7 @@ namespace RaspberryCam.Servers
 
             try
             {
+                //context.Response.OutputStream.Flush();
                 context.Response.Close();
             }
             catch (HttpListenerException ex)
@@ -103,34 +103,42 @@ namespace RaspberryCam.Servers
             if (context.Request.Url.AbsolutePath.Equals("/picture.jpg", StringComparison.InvariantCultureIgnoreCase))
                 TakePicture(context);
 
+            using (var writer = new StreamWriter(context.Response.OutputStream))
+            {
+                writer.WriteLine("Unkown action");
+                writer.Flush();
+                //writer.Close();
+            }
         }
 
         private void TakePicture(HttpListenerContext context)
         {
             HttpListenerRequest httpListenerRequest = context.Request;
 
-            var parameters = GetParameters(httpListenerRequest.Url.Query);
+            var parameters = httpListenerRequest.Url.Query.ParseUrlParameters();
+
+            if (!parameters.AllKeys.Contains("width") || !parameters.AllKeys.Contains("height"))
+                throw new Exception("you have to specify width and height parameters.");
 
             var width = int.Parse(parameters["width"]);
             var height = int.Parse(parameters["height"]);
 
-            cameras.Default.
-        }
+            var camDriver = cameras.Default;
+            if (camDriver == null)
+                return;
 
-        // I do that instead of HttpUtility.ParseQueryString, because I don't want System.Web as depency
-        public static NameValueCollection GetParameters(string rawQuery)
-        {
-            var collection = new NameValueCollection();
+            var data = camDriver.TakePicture(new PictureSize(width, height));
 
-            var query = rawQuery.StartsWith("?") ? rawQuery.Substring(1) : rawQuery;
+            context.Response.ContentType = "image/jpeg";
 
-            foreach(var item in query.Split('&'))
+            using (var writer = new BinaryWriter(context.Response.OutputStream))
             {
-                var parts = item.Split('=');
-                collection.Add(parts[0], parts[1]);
+                writer.Write(data);
+                writer.Flush();
+                writer.Close();
             }
-
-            return collection;
         }
+
+        
     }
 }
