@@ -40,7 +40,7 @@ gdImage* fswc_gdImageDuplicate(gdImage* src)
 	return(dst);
 }
 
-void mySavePng(char *filename, gdImagePtr im)
+void SaveImageToJpegFile(char *filename, gdImagePtr im)
 {
   FILE *out;
   int size;
@@ -64,7 +64,26 @@ void mySavePng(char *filename, gdImagePtr im)
   gdFree(data);  
 }
 
-int main(void) {
+pictureBuffer TakePicture(char *device, int width, int height, int jpegQuantity) {
+	pictureBuffer buffer;
+	
+	memset(&buffer, 0, sizeof(buffer));
+	
+	gdImage *image = grabPicture(strdup(device), width, height);
+	
+	if (image == NULL) {
+		puts("image is NULL");
+		return buffer;
+	}
+	
+	buffer.data = (char *) gdImageJpegPtr(image, &buffer.size, jpegQuantity);
+	
+	gdImageDestroy(image);
+	
+	return buffer;
+}
+
+gdImage *grabPicture(char *device, int width, int height) {
 	avgbmp_t *abitmap, *pbitmap;
 	gdImage *image, *original;
 	src_t src;
@@ -86,10 +105,105 @@ int main(void) {
 	src.palette = SRC_PAL_ANY;
 	src.option = NULL;
 	src.timeout = 10;
+	src.width = width;
+	src.height = height;
+	
+	if(src_open(&src, device) == -1)
+		return NULL;
+	
+	abitmap = (avgbmp_t*)calloc(src.width * src.height * 3, sizeof(avgbmp_t));
+	if(!abitmap)
+	{
+		puts("Out of memory.");
+		return NULL;
+	}
+	
+	src_grab(&src);
+	
+	fswc_add_image_jpeg(&src, abitmap);
+	
+	src_close(&src);
+	
+	original = gdImageCreateTrueColor(src.width, src.height);
+	if(!original)
+	{
+		puts("Out of memory.");
+		free(abitmap);
+		return NULL;
+	}
+	
+	pbitmap = abitmap;
+		
+	for(y = 0; y < src.height; y++)
+		for(x = 0; x < src.width; x++)
+		{
+			int px = x;
+			int py = y;
+			int colour;
+			
+			colour  = (*(pbitmap++) / frames) << 16;
+			colour += (*(pbitmap++) / frames) << 8;
+			colour += (*(pbitmap++) / frames);
+			
+			gdImageSetPixel(original, px, py, colour);
+		}
+	
+	free(abitmap);
+	
+	image = fswc_gdImageDuplicate(original);
+	if(!image)
+	{
+		puts("Out of memory.");
+		gdImageDestroy(image);
+		return(-1);
+	}
+	
+	gdImageDestroy(original);
+	
+	return image;
+}
+
+
+
+int main(void) {
+
+	gdImage *image = grabPicture(strdup("/dev/video0"), 640, 480);
+	
+	if (image == NULL) {
+		puts("image is NULL");
+		return -1;
+	}
+	
+	SaveImageToJpegFile("out3.jpg",image);
+	
+	gdImageDestroy(image);
+	
 	/*
-	src.width = 384;
-	src.height = 288;
-	*/
+	avgbmp_t *abitmap, *pbitmap;
+	gdImage *image, *original;
+	src_t src;
+	uint32_t frame;
+	uint32_t x, y;
+	uint8_t modified;
+	gdImage *im;
+	int frames = 1;
+	
+	memset(&src, 0, sizeof(src));
+	
+	src.input = strdup("0");
+	src.tuner = 0;
+	src.frequency = 0;
+	src.delay = 0;
+	src.use_read = 0;
+	src.list = 0;
+	src.fps = 0;
+	src.palette = SRC_PAL_ANY;
+	src.option = NULL;
+	src.timeout = 10;
+	
+	//src.width = 384;
+	//src.height = 288;
+	
 	
 	src.width = 640;
 	src.height = 480;
@@ -115,7 +229,6 @@ int main(void) {
 	
 	src_close(&src);
 	
-	/* Copy the average bitmap image to a gdImage. */
 	original = gdImageCreateTrueColor(src.width, src.height);
 	if(!original)
 	{
@@ -143,7 +256,6 @@ int main(void) {
 	
 	free(abitmap);
 	
-	/* Make a copy of the original image. */
 	image = fswc_gdImageDuplicate(original);
 	if(!image)
 	{
@@ -152,7 +264,6 @@ int main(void) {
 		return(-1);
 	}
 	
-	/* Create a temporary image buffer. */
 	im = fswc_gdImageDuplicate(image);
 	if(!im)
 	{
@@ -174,13 +285,14 @@ int main(void) {
 	printf("Writing JPEG image to '%s'.", filename);
 	gdImageJpeg(im, f, 90);
 	
-	mySavePng("out2.jpg", im);
+	SaveImageToJpegFile("out2.jpg", im);
 	
 	if(f != stdout) fclose(f);
 	
 	gdImageDestroy(im);
 	
-	puts("Bye bye ...");
+	*/
+	
 	return EXIT_SUCCESS;
 }
 

@@ -2,10 +2,12 @@
 #define RASPBERRYCAM_H_
 
 #include <stdint.h>
+#include <gd.h>
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+
 
 /* Define the bitmap type */
 #ifdef USE_32BIT_BUFFER
@@ -22,6 +24,16 @@ typedef uint16_t avgbmp_t;
 /*----*/
 
 #define CLIP(val, min, max) (((val) > (max)) ? (max) : (((val) < (min)) ? (min) : (val)))
+
+typedef struct PictureBuffer {
+	int size;
+	char *data;
+} pictureBuffer;
+
+gdImage* fswc_gdImageDuplicate(gdImage* src);
+void SaveImageToJpegFile(char *filename, gdImagePtr im);
+gdImage *grabPicture(char *device, int width, int height);
+extern pictureBuffer TakePicture(char *device, int width, int height, int jpegQuantity);
 
 
 #endif /*RASPBERRYCAM_H_*/
