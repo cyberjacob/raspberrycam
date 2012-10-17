@@ -85,7 +85,7 @@ src_t *FakeOpen(char *device, int width, int height) {
 	return src;
 }
 
-src_t *OpenCameraStream(char *device, int width, int height) {
+src_t *OpenCameraStream(char *device, int width, int height, int fps) {
 	src_t *src = (src_t*)malloc(sizeof(src_t));
 	
 	src->input = strdup("0");
@@ -94,7 +94,7 @@ src_t *OpenCameraStream(char *device, int width, int height) {
 	src->delay = 0;
 	src->use_read = 0;
 	src->list = 0;
-	src->fps = 0;
+	src->fps = fps;
 	src->palette = SRC_PAL_ANY;
 	src->option = NULL;
 	src->timeout = 10;
@@ -107,7 +107,7 @@ src_t *OpenCameraStream(char *device, int width, int height) {
 	return src;
 }
 
-src_t *CloseCameraStream(src_t *src) {
+void CloseCameraStream(src_t *src) {
 	src_close(src);
 }
 

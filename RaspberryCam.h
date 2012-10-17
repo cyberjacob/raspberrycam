@@ -47,8 +47,8 @@ extern src_t *FakeOpen(char *device, int width, int height);
 extern pictureBuffer TakePicture(char *device, int width, int height, int jpegQuantity);
 
 /* to stream a video */
-extern src_t *OpenCameraStream(char *device, int width, int height);
-extern src_t *CloseCameraStream(src_t *src);
+extern src_t *OpenCameraStream(char *device, int width, int height, int fps);
+extern void CloseCameraStream(src_t *src);
 extern pictureBuffer ReadVideoFrame(src_t *src, int jpegQuantity);
 
 #endif /*RASPBERRYCAM_H_*/
