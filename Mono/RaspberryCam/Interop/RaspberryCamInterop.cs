@@ -14,5 +14,14 @@ namespace RaspberryCam.Interop
         [DllImport("RaspberryCam.so", EntryPoint = "FakeOpen")]
         public static extern IntPtr FakeOpen(string device, uint width, uint height);
 
+
+        [DllImport("RaspberryCam.so", EntryPoint = "OpenCameraStream")]
+        public static extern IntPtr OpenCameraStream(string device, uint width, uint height, uint fps);
+
+        [DllImport("RaspberryCam.so", EntryPoint = "CloseCameraStream")]
+        public static extern void CloseCameraStream(IntPtr src);
+
+        [DllImport("RaspberryCam.so", EntryPoint = "ReadVideoFrame")]
+        public static extern PictureBuffer ReadVideoFrame(IntPtr src, uint jpegQuantity);
     }
 }

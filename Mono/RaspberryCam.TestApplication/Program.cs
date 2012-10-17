@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using RaspberryCam.Interop;
 using RaspberryCam.Servers;
 
@@ -22,11 +23,27 @@ namespace RaspberryCam.TestApplication
             //videoServer.Start();
             //Console.WriteLine("Server strated.");
 
-            IntPtr src = RaspberryCamInterop.FakeOpen("/dev/video0", 640, 480);
+            //IntPtr src = RaspberryCamInterop.FakeOpen("/dev/video0", 640, 480);
 
-            Console.WriteLine("src adress: {0}", src);
+            //Console.WriteLine("src adress: {0}", src);
 
-            RaspberryCamInterop.DisplaySrc(src);
+            //RaspberryCamInterop.DisplaySrc(src);
+
+            var handle = RaspberryCamInterop.OpenCameraStream("/dev/video0", 640, 480, 20);
+
+            var pictureBuffer = RaspberryCamInterop.ReadVideoFrame(handle, 100);
+            
+            var data = new byte[pictureBuffer.Size];
+            Marshal.Copy(pictureBuffer.Data, data, 0, pictureBuffer.Size);
+            File.WriteAllBytes("video1.jpg", data);
+
+            pictureBuffer = RaspberryCamInterop.ReadVideoFrame(handle, 100);
+            data = new byte[pictureBuffer.Size];
+            Marshal.Copy(pictureBuffer.Data, data, 0, pictureBuffer.Size);
+
+            File.WriteAllBytes("video2.jpg", data);
+
+            RaspberryCamInterop.CloseCameraStream(handle);
 
 
             Console.WriteLine("Press any key to quit ...");
