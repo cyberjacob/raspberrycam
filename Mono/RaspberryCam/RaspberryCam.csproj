@@ -46,6 +46,9 @@
     <Compile Include="Percent.cs" />
     <Compile Include="Interop\PictureBuffer.cs" />
     <Compile Include="Interop\RaspberryCamInterop.cs" />
+    <Compile Include="PicturesCache.cs" />
+    <Compile Include="PicturesCacheKey.cs" />
+    <Compile Include="PicturesCacheValue.cs" />
     <Compile Include="PictureSize.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Servers\HttpMethodQuery.cs" />

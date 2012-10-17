@@ -42,5 +42,26 @@ namespace RaspberryCam
         {
             get { return 100; }
         }
+
+        #region Equality Members
+
+        public bool Equals(Percent other)
+        {
+            return value == other.value;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            return obj is Percent && Equals((Percent) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return value;
+        }
+
+        #endregion
+
     }
 }
