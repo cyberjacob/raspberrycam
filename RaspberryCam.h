@@ -1,13 +1,14 @@
 #ifndef RASPBERRYCAM_H_
 #define RASPBERRYCAM_H_
 
-#include <stdint.h>
-#include <gd.h>
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
+#include <stdint.h>
+#include <gd.h>
+
+#include "src.h"
 
 /* Define the bitmap type */
 #ifdef USE_32BIT_BUFFER
@@ -30,10 +31,24 @@ typedef struct PictureBuffer {
 	char *data;
 } pictureBuffer;
 
+typedef struct VideoStreamHandle {
+	
+} videoStreamHandle;
+
 gdImage* fswc_gdImageDuplicate(gdImage* src);
 void SaveImageToJpegFile(char *filename, gdImagePtr im);
 gdImage *grabPicture(char *device, int width, int height);
+
+/* to test .net IntPtr */
+extern void DisplaySrc(src_t *src);
+extern src_t *FakeOpen(char *device, int width, int height);
+
+/* to take a simple picture */
 extern pictureBuffer TakePicture(char *device, int width, int height, int jpegQuantity);
 
+/* to stream a video */
+extern src_t *OpenCameraStream(char *device, int width, int height);
+extern src_t *CloseCameraStream(src_t *src);
+extern pictureBuffer ReadVideoFrame(src_t *src, int jpegQuantity);
 
 #endif /*RASPBERRYCAM_H_*/

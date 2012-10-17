@@ -64,6 +64,133 @@ void SaveImageToJpegFile(char *filename, gdImagePtr im)
   gdFree(data);  
 }
 
+src_t *FakeOpen(char *device, int width, int height) {
+	src_t *src = (src_t*)malloc(sizeof(src_t));
+	
+	//memset(&src, 0, sizeof(src));
+	
+	src->input = strdup("0");
+	src->tuner = 0;
+	src->frequency = 0;
+	src->delay = 0;
+	src->use_read = 0;
+	src->list = 0;
+	src->fps = 0;
+	src->palette = SRC_PAL_ANY;
+	src->option = NULL;
+	src->timeout = 10;
+	src->width = width;
+	src->height = height;
+	
+	return src;
+}
+
+src_t *OpenCameraStream(char *device, int width, int height) {
+	src_t *src = (src_t*)malloc(sizeof(src_t));
+	
+	src->input = strdup("0");
+	src->tuner = 0;
+	src->frequency = 0;
+	src->delay = 0;
+	src->use_read = 0;
+	src->list = 0;
+	src->fps = 0;
+	src->palette = SRC_PAL_ANY;
+	src->option = NULL;
+	src->timeout = 10;
+	src->width = width;
+	src->height = height;
+	
+	if(src_open(src, device) == -1)
+		return NULL;
+	
+	return src;
+}
+
+src_t *CloseCameraStream(src_t *src) {
+	src_close(src);
+}
+
+pictureBuffer ReadVideoFrame(src_t *src, int jpegQuantity) {
+	avgbmp_t *abitmap, *pbitmap;
+	gdImage *image, *original;
+	uint32_t frame;
+	uint32_t x, y;
+	uint8_t modified;
+	gdImage *im;
+	int frames = 1;
+	pictureBuffer buffer;
+	
+	abitmap = (avgbmp_t*)calloc(src->width * src->height * 3, sizeof(avgbmp_t));
+	if(!abitmap)
+	{
+		puts("Out of memory.");
+		return buffer;
+	}
+	
+	src_grab(src);
+	
+	fswc_add_image_jpeg(src, abitmap);
+	
+	original = gdImageCreateTrueColor(src->width, src->height);
+	if(!original)
+	{
+		puts("Out of memory.");
+		free(abitmap);
+		return buffer;
+	}
+	
+	pbitmap = abitmap;
+		
+	for(y = 0; y < src->height; y++)
+		for(x = 0; x < src->width; x++)
+		{
+			int px = x;
+			int py = y;
+			int colour;
+			
+			colour  = (*(pbitmap++) / frames) << 16;
+			colour += (*(pbitmap++) / frames) << 8;
+			colour += (*(pbitmap++) / frames);
+			
+			gdImageSetPixel(original, px, py, colour);
+		}
+	
+	free(abitmap);
+	
+	image = fswc_gdImageDuplicate(original);
+	if(!image)
+	{
+		puts("Out of memory.");
+		gdImageDestroy(image);
+		return buffer;
+	}
+	
+	gdImageDestroy(original);
+	
+	memset(&buffer, 0, sizeof(buffer));
+	
+	if (image == NULL) {
+		puts("image is NULL");
+		return buffer;
+	}
+	
+	buffer.data = (char *) gdImageJpegPtr(image, &buffer.size, jpegQuantity);
+	
+	gdImageDestroy(image);
+	
+	return buffer;
+}
+
+void DisplaySrc(src_t *src) {
+	puts("DisplaySrc 2");
+	
+	printf("input: %s\n", src->input);
+	
+	printf("width: %d\n", src->width);
+	printf("height: %d\n", src->height);
+}
+
 pictureBuffer TakePicture(char *device, int width, int height, int jpegQuantity) {
 	pictureBuffer buffer;
 	
