@@ -606,7 +606,7 @@ int src_v4l2_set_pix_format(src_t *src)
 				src->height = s->fmt.fmt.pix.height;
                         }
 			
-			MSG("s->fd: %d", s->fd);
+			//MSG("s->fd: %d", s->fd);
 			
 			if(ioctl(s->fd, VIDIOC_S_FMT, &s->fmt) == -1)
 			{
@@ -914,7 +914,7 @@ static int src_v4l2_grab(src_t *src)
 {
 	src_v4l2_t *s = (src_v4l2_t *) src->state;
 	
-	MSG("src->timeout: %d", src->timeout);
+	//MSG("src->timeout: %d", src->timeout);
 	
 	if(src->timeout)
 	{
@@ -944,7 +944,7 @@ static int src_v4l2_grab(src_t *src)
 		}
 	}
 	
-	MSG("s->map: %d", s->map);
+	//MSG("s->map: %d", s->map);
 	
 	if(s->map)
 	{
@@ -962,7 +962,7 @@ static int src_v4l2_grab(src_t *src)
 		s->buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 		s->buf.memory = V4L2_MEMORY_MMAP;
 		
-		MSG("s->fd: %d", s->fd);
+		//MSG("s->fd: %d", s->fd);
 		
 		if(ioctl(s->fd, VIDIOC_DQBUF, &s->buf) == -1)
 		{

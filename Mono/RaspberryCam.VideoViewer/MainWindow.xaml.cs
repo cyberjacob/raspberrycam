@@ -13,15 +13,25 @@ namespace RaspberryCam.VideoViewer
     public partial class MainWindow : Window
     {
         private readonly TcpVideoClient videoClient;
-        
+        private bool streaming = false;
+        private int imageWidth;
+        private int imageHeight;
+        private int compressionRate;
+
+
         public MainWindow()
         {
             InitializeComponent();
 
             videoClient = new TcpVideoClient("home.romcyber.com", 8080);
-            
-            ImageViewer.Width = 640;
-            ImageViewer.Height = 480;
+
+            imageWidth = 320*2;
+            imageHeight = 240*2;
+
+            ImageViewer.Width = imageWidth;
+            ImageViewer.Height = imageHeight;
+            compressionRate = 30;
+            CompressionSlider.Value = compressionRate;
         }
 
         public delegate void UiDelegate();
@@ -44,11 +54,10 @@ namespace RaspberryCam.VideoViewer
             return image;
         }
 
-        private bool streaming = false;
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            videoClient.StartVideoStreaming(new PictureSize(640, 480));
+            videoClient.StartVideoStreaming(new PictureSize(imageWidth/2, imageHeight/2));
 
             streaming = true;
 
@@ -56,9 +65,8 @@ namespace RaspberryCam.VideoViewer
                 {
                     while (streaming)
                     {
-                        var data = videoClient.GetVideoFrame(60);
                         
-
+                        var data = videoClient.GetVideoFrame(compressionRate);
                         Dispatcher.BeginInvoke((UiDelegate)delegate()
                         {
                             var bitmapImage = LoadImage(data);
@@ -67,13 +75,19 @@ namespace RaspberryCam.VideoViewer
                             UpdateLayout();
                         }, DispatcherPriority.Normal);
                     }
+
+                    videoClient.StopVideoStreaming();
                 });
         }
 
         private void Button_Click_2(object sender, RoutedEventArgs e)
         {
             streaming = false;
-            videoClient.StopVideoStreaming();
+        }
+
+        private void CompressionSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            compressionRate = (int) CompressionSlider.Value;
         }
     }
 }

@@ -1,80 +1,33 @@
-﻿using System;
-using System.IO;
-using System.Net;
-using System.Net.Sockets;
+﻿using System.Net;
 
 namespace RaspberryCam.Clients
 {
     public class TcpVideoClient
     {
-        private readonly TcpClient tcpClient;
         private readonly WebClient webClient;
         public string ServerHostIp { get; private set; }
         public int ServerPort { get; private set; }
-
-        
 
         public TcpVideoClient(string serverHostIp, int serverPort)
         {
             ServerPort = serverPort;
             ServerHostIp = serverHostIp;
 
-            tcpClient = new TcpClient();
             webClient = new WebClient();
         }
 
-        public void StartVideoStreaming(PictureSize pictureSize)
+        public void StartVideoStreaming(PictureSize pictureSize, int fps = 2)
         {
-            var url = string.Format("http://{0}:{1}/StartVideoStreaming?width={2}&height={3}",
-                ServerHostIp, ServerPort, pictureSize.Width, pictureSize.Height);
+            var url = string.Format("http://{0}:{1}/StartVideoStreaming?width={2}&height={3}&fps={4}",
+                ServerHostIp, ServerPort, pictureSize.Width, pictureSize.Height, fps);
 
-            try
-            {
-                webClient.DownloadString(url);
-            }
-            catch
-            {
-                
-            }
-            
-
-            //tcpClient.Connect(ServerHostIp, ServerPort);
-
-            //var command = string.Format("/StartVideoStreaming?width={0}&height={1}", pictureSize.Width, pictureSize.Height);
-
-            //SendHttpCommand(command);
-
-            //tcpClient.Close();
+            webClient.DownloadString(url);
         }
-
-        private void SendHttpCommand(string command)
-        {
-            var httpGetRequest = string.Format("GET http://{0}:{1}{2} HTTP/1.1", 
-                ServerHostIp, ServerPort, command);
-
-            using (var networkStream = tcpClient.GetStream())
-            using (var writer = new StreamWriter(networkStream))
-            {
-                writer.WriteLine(httpGetRequest);
-                writer.WriteLine();
-                writer.WriteLine();
-                writer.Flush();
-            }
-        }
-
+        
         public void StopVideoStreaming()
         {
             var url = string.Format("http://{0}:{1}/StopVideoStreaming", ServerHostIp, ServerPort);
-
-            //webClient.DownloadString(url);
-            try
-            {
-                webClient.DownloadString(url);
-            }
-            catch
-            {
-
-            }
+            webClient.DownloadString(url);
         }
 
         public byte[] GetVideoFrame(Percent compressionRate)
@@ -83,7 +36,6 @@ namespace RaspberryCam.Clients
                 ServerHostIp, ServerPort, compressionRate.Value);
 
             return webClient.DownloadData(url);
-            //return new byte[0];
         }
     }
 }

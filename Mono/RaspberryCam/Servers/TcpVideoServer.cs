@@ -112,8 +112,10 @@ namespace RaspberryCam.Servers
 
             camDriver.StopVideoStreaming();
 
-            using (var writer = new BinaryWriter(responseStream))
+            using (var writer = new StreamWriter(responseStream))
             {
+                WriteHttpReponseHeader(writer, "text/txt");
+
                 writer.Write("ok\n\n");
                 writer.Flush();
                 writer.Close();
@@ -127,12 +129,13 @@ namespace RaspberryCam.Servers
 
             var width = int.Parse(parameters["width"]);
             var height = int.Parse(parameters["height"]);
-
+            var fps = parameters.AllKeys.Contains("fps") ? int.Parse(parameters["fps"]) : 20;
+            
             var camDriver = cameras.Default;
             if (camDriver == null)
                 return;
 
-            camDriver.StartVideoStreaming(new PictureSize(width, height));
+            camDriver.StartVideoStreaming(new PictureSize(width, height), fps);
 
             using (var writer = new StreamWriter(responseStream))
             {
