@@ -1,11 +1,11 @@
 ﻿<Window x:Class="RaspberryCam.VideoViewer.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MainWindow" Height="392.656" Width="582.969">
+        Title="MainWindow" Height="570" Width="700">
     <Grid>
-        <Image HorizontalAlignment="Left" Height="313" Margin="10,10,0,0" VerticalAlignment="Top" Width="555" x:Name="ImageViewer"/>
-        <Button Content="Start video" HorizontalAlignment="Left" Margin="135,331,0,0" VerticalAlignment="Top" Width="76" Click="Button_Click_1"/>
-        <Button Content="Stop video" HorizontalAlignment="Left" Margin="238,331,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_2"/>
+        <Image HorizontalAlignment="Left" Height="481" Margin="10,10,0,0" VerticalAlignment="Top" Width="672" x:Name="ImageViewer"/>
+        <Button Content="Start video" HorizontalAlignment="Left" Margin="9,508,0,10" Width="76" Click="Button_Click_1"/>
+        <Button Content="Stop video" HorizontalAlignment="Left" Margin="112,508,0,10" Width="75" Click="Button_Click_2"/>
 
     </Grid>
 </Window>
