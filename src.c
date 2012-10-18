@@ -96,11 +96,7 @@ int src_open(src_t *src, char *source)
 		free(s);
 		return(-1);
 	}
-	/*
-	printf("s: %s\n", s);
-	printf("sl: %s\n", sl);
-	printf("source: %s\n", source);
-	*/
+
 	/* Check if it's a source name. */
 	i = 0;
 	while(src_mod[i])

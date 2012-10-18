@@ -39,10 +39,6 @@ gdImage* fswc_gdImageDuplicate(gdImage* src);
 void SaveImageToJpegFile(char *filename, gdImagePtr im);
 gdImage *grabPicture(char *device, int width, int height);
 
-/* to test .net IntPtr */
-extern void DisplaySrc(src_t *src);
-extern src_t *FakeOpen(char *device, int width, int height);
-
 /* to take a simple picture */
 extern pictureBuffer TakePicture(char *device, int width, int height, int jpegQuantity);
 
