@@ -1,18 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Timers;
+﻿using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 using RaspberryCam.Clients;
 
@@ -24,32 +13,18 @@ namespace RaspberryCam.VideoViewer
     public partial class MainWindow : Window
     {
         private readonly TcpVideoClient videoClient;
-        private Timer timer;
-
+        
         public MainWindow()
         {
             InitializeComponent();
 
             videoClient = new TcpVideoClient("home.romcyber.com", 8080);
-            timer = new Timer();
-            timer.Elapsed += DisplayPicture;
+            
+            ImageViewer.Width = 640;
+            ImageViewer.Height = 480;
         }
 
-        public delegate void MyDelegate();
-
-        private void DisplayPicture(object sender, ElapsedEventArgs e)
-        {
-            Dispatcher.Invoke((MyDelegate)delegate ()
-                {
-                    var data = videoClient.GetVideoFrame(60);
-
-                    var bitmapImage = LoadImage(data);
-                    ImageViewer.Source = bitmapImage;
-                }, 
-                DispatcherPriority.Normal);
-
-           
-        }
+        public delegate void UiDelegate();
 
         private static BitmapImage LoadImage(byte[] imageData)
         {
@@ -69,17 +44,35 @@ namespace RaspberryCam.VideoViewer
             return image;
         }
 
+        private bool streaming = false;
+
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            videoClient.StartVideoStreaming(new PictureSize(320, 240));
+            videoClient.StartVideoStreaming(new PictureSize(640, 480));
 
-            timer.Interval = 500;
-            timer.Start();
+            streaming = true;
+
+            Task.Factory.StartNew(() =>
+                {
+                    while (streaming)
+                    {
+                        var data = videoClient.GetVideoFrame(60);
+                        
+
+                        Dispatcher.BeginInvoke((UiDelegate)delegate()
+                        {
+                            var bitmapImage = LoadImage(data);
+                            ImageViewer.Source = bitmapImage;
+
+                            UpdateLayout();
+                        }, DispatcherPriority.Normal);
+                    }
+                });
         }
 
         private void Button_Click_2(object sender, RoutedEventArgs e)
         {
-            timer.Stop();
+            streaming = false;
             videoClient.StopVideoStreaming();
         }
     }
