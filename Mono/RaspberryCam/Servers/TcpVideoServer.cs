@@ -4,12 +4,16 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 
 namespace RaspberryCam.Servers
 {
     public static class VideoServerCommands
     {
         public const string TakePicture = "/picture.jpg";
+        public const string StartVideoStreaming = "/StartVideoStreaming";
+        public const string StopVideoStreaming = "/StopVideoStreaming";
+        public const string GetVideoFrame = "/GetVideoFrame";
     }
 
     public class TcpVideoServer
@@ -28,48 +32,130 @@ namespace RaspberryCam.Servers
 
         public void Start()
         {
-            listener.Start();
+            Task.Factory.StartNew(() => 
+            { 
 
-            while (true)
-            {
-                var client = listener.AcceptTcpClient();
-                HandleClient(client);
-            }
+                listener.Start();
+
+                while (true)
+                {
+                    var client = listener.AcceptTcpClient();
+
+                    Task.Factory.StartNew(() => HandleClient(client));
+                }
+
+            });
         }
 
         private void HandleClient(TcpClient client)
         {
-            var bytes = new byte[256];
-            var stream = client.GetStream();
-            int i;
-            var data = string.Empty;
-
-            while ((i = stream.Read(bytes, 0, bytes.Length)) != 0)
+            try
             {
-                data += System.Text.Encoding.ASCII.GetString(bytes, 0, i);
-                if (data.EndsWith("\r\n\r\n"))
-                    break;
+                var bytes = new byte[256];
+                var stream = client.GetStream();
+                int i;
+                var data = string.Empty;
+
+                while ((i = stream.Read(bytes, 0, bytes.Length)) != 0)
+                {
+                    data += System.Text.Encoding.ASCII.GetString(bytes, 0, i);
+                    if (data.EndsWith("\r\n\r\n"))
+                        break;
+                }
+
+                if (string.IsNullOrWhiteSpace(data))
+                {
+                    client.Close();
+                    return;
+                }
+
+                var lines = data.Split(new[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
+                var httpMethodQuery = lines[0].ParseHttpMethodQuery();
+                var urlParameters = httpMethodQuery.Query.ParseUrlParameters();
+
+                switch (httpMethodQuery.Path)
+                {
+                    case VideoServerCommands.TakePicture:
+                        Console.WriteLine("TakePicture: {0}", httpMethodQuery.PathAndQuery);
+                        TakePicture(urlParameters, client.GetStream());
+                        break;
+                    case VideoServerCommands.StartVideoStreaming:
+                        StartVideoStreaming(urlParameters, client.GetStream());
+                        break;
+                    case VideoServerCommands.StopVideoStreaming:
+                        StopVideoStreaming(urlParameters, client.GetStream());
+                        break;
+                    case VideoServerCommands.GetVideoFrame:
+                        GetVideoFrame(urlParameters, client.GetStream());
+                        break;
+                }
             }
-
-            if (string.IsNullOrWhiteSpace(data))
+            catch (Exception ex)
             {
-                client.Close();
+                Console.WriteLine("Exception: {0}", ex.Message);
+            }
+            finally
+            {
+                client.Close();   
+            }
+        }
+
+        private void StopVideoStreaming(NameValueCollection parameters, NetworkStream responseStream)
+        {
+            var camDriver = cameras.Default;
+            if (camDriver == null)
                 return;
-            }
 
-            var lines = data.Split(new[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
-            var httpMethodQuery = lines[0].ParseHttpMethodQuery();
-            var urlParameters = httpMethodQuery.Query.ParseUrlParameters();
+            camDriver.StopVideoStreaming();
 
-            switch (httpMethodQuery.Path)
+            using (var writer = new BinaryWriter(responseStream))
             {
-                case VideoServerCommands.TakePicture:
-                    Console.WriteLine("TakePicture: {0}", httpMethodQuery.PathAndQuery);
-                    TakePicture(urlParameters, client.GetStream());
-                    break;
+                writer.Write("ok");
+                writer.Flush();
+                writer.Close();
             }
+        }
+
+        private void StartVideoStreaming(NameValueCollection parameters, NetworkStream responseStream)
+        {
+            if (!parameters.AllKeys.Contains("width") || !parameters.AllKeys.Contains("height"))
+                throw new Exception("you have to specify width and height parameters.");
+
+            var width = int.Parse(parameters["width"]);
+            var height = int.Parse(parameters["height"]);
+
+            var camDriver = cameras.Default;
+            if (camDriver == null)
+                return;
+
+            camDriver.StartVideoStreaming(new PictureSize(width, height));
+
+            using (var writer = new BinaryWriter(responseStream))
+            {
+                writer.Write("ok");
+                writer.Flush();
+                writer.Close();
+            }
+        }
+
+        private void GetVideoFrame(NameValueCollection parameters, NetworkStream responseStream)
+        {
+            if (!parameters.AllKeys.Contains("compressionRate"))
+                throw new Exception("you have to specify compressionRate parameter.");
+
+            var compressionRate = int.Parse(parameters["compressionRate"]);
             
-            client.Close();
+            var camDriver = cameras.Default;
+            if (camDriver == null)
+                return;
+
+            using (var writer = new BinaryWriter(responseStream))
+            {
+                var data = camDriver.GetVideoFrame(compressionRate);
+                writer.Write(data);
+                writer.Flush();
+                writer.Close();
+            }
         }
 
         public void Stop()
