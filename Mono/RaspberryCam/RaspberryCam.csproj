@@ -43,6 +43,7 @@
     <Compile Include="Cameras.cs" />
     <Compile Include="CamManager.cs" />
     <Compile Include="CamManagerBuilder.cs" />
+    <Compile Include="Clients\TcpVideoClient.cs" />
     <Compile Include="Percent.cs" />
     <Compile Include="Interop\PictureBuffer.cs" />
     <Compile Include="Interop\RaspberryCamInterop.cs" />

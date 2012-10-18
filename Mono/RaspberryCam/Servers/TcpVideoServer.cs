@@ -52,42 +52,46 @@ namespace RaspberryCam.Servers
             try
             {
                 var bytes = new byte[256];
-                var stream = client.GetStream();
                 int i;
                 var data = string.Empty;
-
-                while ((i = stream.Read(bytes, 0, bytes.Length)) != 0)
+                using (var stream = client.GetStream())
                 {
-                    data += System.Text.Encoding.ASCII.GetString(bytes, 0, i);
-                    if (data.EndsWith("\r\n\r\n"))
-                        break;
-                }
 
-                if (string.IsNullOrWhiteSpace(data))
-                {
-                    client.Close();
-                    return;
-                }
+                    while ((i = stream.Read(bytes, 0, bytes.Length)) != 0)
+                    {
+                        data += System.Text.Encoding.ASCII.GetString(bytes, 0, i);
+                        if (data.EndsWith("\r\n\r\n"))
+                            break;
+                    }
 
-                var lines = data.Split(new[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
-                var httpMethodQuery = lines[0].ParseHttpMethodQuery();
-                var urlParameters = httpMethodQuery.Query.ParseUrlParameters();
+                    if (string.IsNullOrWhiteSpace(data))
+                    {
+                        client.Close();
+                        return;
+                    }
 
-                switch (httpMethodQuery.Path)
-                {
-                    case VideoServerCommands.TakePicture:
-                        Console.WriteLine("TakePicture: {0}", httpMethodQuery.PathAndQuery);
-                        TakePicture(urlParameters, client.GetStream());
-                        break;
-                    case VideoServerCommands.StartVideoStreaming:
-                        StartVideoStreaming(urlParameters, client.GetStream());
-                        break;
-                    case VideoServerCommands.StopVideoStreaming:
-                        StopVideoStreaming(urlParameters, client.GetStream());
-                        break;
-                    case VideoServerCommands.GetVideoFrame:
-                        GetVideoFrame(urlParameters, client.GetStream());
-                        break;
+                    var lines = data.Split(new[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
+                    var httpMethodQuery = lines[0].ParseHttpMethodQuery();
+                    var urlParameters = httpMethodQuery.Query.ParseUrlParameters();
+
+                    switch (httpMethodQuery.Path)
+                    {
+                        case VideoServerCommands.TakePicture:
+                            Console.WriteLine("TakePicture: {0}", httpMethodQuery.PathAndQuery);
+                            TakePicture(urlParameters, stream);
+                            break;
+                        case VideoServerCommands.StartVideoStreaming:
+                            StartVideoStreaming(urlParameters, stream);
+                            Console.WriteLine("VideoStreaming started");
+                            break;
+                        case VideoServerCommands.StopVideoStreaming:
+                            StopVideoStreaming(urlParameters, stream);
+                            Console.WriteLine("VideoStreaming stopped");
+                            break;
+                        case VideoServerCommands.GetVideoFrame:
+                            GetVideoFrame(urlParameters, stream);
+                            break;
+                    }
                 }
             }
             catch (Exception ex)
@@ -110,7 +114,7 @@ namespace RaspberryCam.Servers
 
             using (var writer = new BinaryWriter(responseStream))
             {
-                writer.Write("ok");
+                writer.Write("ok\n\n");
                 writer.Flush();
                 writer.Close();
             }
@@ -130,12 +134,23 @@ namespace RaspberryCam.Servers
 
             camDriver.StartVideoStreaming(new PictureSize(width, height));
 
-            using (var writer = new BinaryWriter(responseStream))
+            using (var writer = new StreamWriter(responseStream))
             {
-                writer.Write("ok");
+                WriteHttpReponseHeader(writer, "text/txt");
+
+                writer.Write("ok\r\n");
                 writer.Flush();
                 writer.Close();
             }
+        }
+
+        private void WriteHttpReponseHeader(StreamWriter writer, string contentType)
+        {
+            writer.Write("HTTP/1.0 200 OK\r\n");
+            writer.Write("Server: RaspberryCam\r\n");
+            writer.Write("Content-Type: {0}\r\n", contentType);
+            writer.Write("\r\n");
+            writer.Flush();
         }
 
         private void GetVideoFrame(NameValueCollection parameters, NetworkStream responseStream)
@@ -149,8 +164,11 @@ namespace RaspberryCam.Servers
             if (camDriver == null)
                 return;
 
+            using (var headWriter = new StreamWriter(responseStream))
             using (var writer = new BinaryWriter(responseStream))
             {
+                WriteHttpReponseHeader(headWriter, "image/jpeg");
+
                 var data = camDriver.GetVideoFrame(compressionRate);
                 writer.Write(data);
                 writer.Flush();
