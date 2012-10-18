@@ -17,11 +17,11 @@ namespace RaspberryCam.TestApplication
             //cameras.Get("Camera 1").SavePicture(new PictureSize(640, 480), "Test3.jpg", 20);
 
             //var videoServer = new HttpVideoServer(80, cameras);
-            
-            //var videoServer = new TcpVideoServer(8080, cameras);
-            //Console.WriteLine("Server strating ...");
-            //videoServer.Start();
-            //Console.WriteLine("Server strated.");
+
+            var videoServer = new TcpVideoServer(8080, cameras);
+            Console.WriteLine("Server strating ...");
+            videoServer.Start();
+            Console.WriteLine("Server strated.");
 
             //IntPtr src = RaspberryCamInterop.FakeOpen("/dev/video0", 640, 480);
 
@@ -29,25 +29,27 @@ namespace RaspberryCam.TestApplication
 
             //RaspberryCamInterop.DisplaySrc(src);
 
-            var handle = RaspberryCamInterop.OpenCameraStream("/dev/video0", 640, 480, 20);
+            //var handle = RaspberryCamInterop.OpenCameraStream("/dev/video0", 640, 480, 20);
 
-            var pictureBuffer = RaspberryCamInterop.ReadVideoFrame(handle, 100);
+            //var pictureBuffer = RaspberryCamInterop.ReadVideoFrame(handle, 100);
             
-            var data = new byte[pictureBuffer.Size];
-            Marshal.Copy(pictureBuffer.Data, data, 0, pictureBuffer.Size);
-            File.WriteAllBytes("video1.jpg", data);
+            //var data = new byte[pictureBuffer.Size];
+            //Marshal.Copy(pictureBuffer.Data, data, 0, pictureBuffer.Size);
+            //File.WriteAllBytes("video1.jpg", data);
 
-            pictureBuffer = RaspberryCamInterop.ReadVideoFrame(handle, 100);
-            data = new byte[pictureBuffer.Size];
-            Marshal.Copy(pictureBuffer.Data, data, 0, pictureBuffer.Size);
+            //pictureBuffer = RaspberryCamInterop.ReadVideoFrame(handle, 100);
+            //data = new byte[pictureBuffer.Size];
+            //Marshal.Copy(pictureBuffer.Data, data, 0, pictureBuffer.Size);
 
-            File.WriteAllBytes("video2.jpg", data);
+            //File.WriteAllBytes("video2.jpg", data);
 
-            RaspberryCamInterop.CloseCameraStream(handle);
+            //RaspberryCamInterop.CloseCameraStream(handle);
 
 
             Console.WriteLine("Press any key to quit ...");
             Console.ReadKey(true);
+
+            videoServer.Stop();
         }
     }
 }
