@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaspberryCam", "RaspberryCam\RaspberryCam.csproj", "{73591E5B-4423-4623-A94C-E8A952E643EC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaspberryCam.TestApplication", "RaspberryCam.TestApplication\RaspberryCam.TestApplication.csproj", "{2C999EA8-C8BD-4EA2-A175-7341C62CE8D0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaspberryCam.ServerExample", "RaspberryCam.TestApplication\RaspberryCam.ServerExample.csproj", "{2C999EA8-C8BD-4EA2-A175-7341C62CE8D0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaspberryCam.VideoViewer", "RaspberryCam.VideoViewer\RaspberryCam.VideoViewer.csproj", "{E3D826DC-F5DD-43E7-95AF-F988B3E2AC8A}"
 EndProject

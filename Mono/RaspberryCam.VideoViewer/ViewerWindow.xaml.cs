@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
@@ -8,9 +9,9 @@ using RaspberryCam.Clients;
 namespace RaspberryCam.VideoViewer
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for ViewerWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class ViewerWindow : Window
     {
         private readonly TcpVideoClient videoClient;
         private bool streaming = false;
@@ -18,12 +19,11 @@ namespace RaspberryCam.VideoViewer
         private int imageHeight;
         private int compressionRate;
 
-
-        public MainWindow()
+        public ViewerWindow(string serverHostIp, int serverPort)
         {
             InitializeComponent();
 
-            videoClient = new TcpVideoClient("home.romcyber.com", 8080);
+            videoClient = new TcpVideoClient(serverHostIp, serverPort);
 
             imageWidth = 320*2;
             imageHeight = 240*2;
@@ -31,7 +31,17 @@ namespace RaspberryCam.VideoViewer
             ImageViewer.Width = imageWidth;
             ImageViewer.Height = imageHeight;
             compressionRate = 30;
+            CompressionLabel.Content = string.Format("{0}%", compressionRate);
             CompressionSlider.Value = compressionRate;
+
+            StartVideoButton.Visibility = Visibility.Visible;
+            StopVideoButton.Visibility = Visibility.Hidden;
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+            Application.Current.Shutdown();
         }
 
         public delegate void UiDelegate();
@@ -59,6 +69,9 @@ namespace RaspberryCam.VideoViewer
         {
             videoClient.StartVideoStreaming(new PictureSize(imageWidth/2, imageHeight/2));
 
+            StartVideoButton.Visibility = Visibility.Hidden;
+            StopVideoButton.Visibility = Visibility.Visible;
+
             streaming = true;
 
             Task.Factory.StartNew(() =>
@@ -67,7 +80,7 @@ namespace RaspberryCam.VideoViewer
                     {
                         
                         var data = videoClient.GetVideoFrame(compressionRate);
-                        Dispatcher.BeginInvoke((UiDelegate)delegate()
+                        Dispatcher.BeginInvoke((UiDelegate)delegate
                         {
                             var bitmapImage = LoadImage(data);
                             ImageViewer.Source = bitmapImage;
@@ -77,6 +90,11 @@ namespace RaspberryCam.VideoViewer
                     }
 
                     videoClient.StopVideoStreaming();
+                    Dispatcher.BeginInvoke((UiDelegate)delegate
+                        {
+                            StartVideoButton.Visibility = Visibility.Visible;
+                            StopVideoButton.Visibility = Visibility.Hidden;
+                        }, DispatcherPriority.Normal);
                 });
         }
 
@@ -88,6 +106,7 @@ namespace RaspberryCam.VideoViewer
         private void CompressionSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             compressionRate = (int) CompressionSlider.Value;
+            CompressionLabel.Content = string.Format("{0}%", compressionRate);
         }
     }
 }

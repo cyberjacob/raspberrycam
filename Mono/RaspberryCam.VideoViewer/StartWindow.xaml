@@ -1,0 +1,13 @@
+﻿<Window x:Class="RaspberryCam.VideoViewer.StartWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RaspberryCam viewer" Height="120.455" Width="346.591" ResizeMode="NoResize">
+    <Grid>
+        <TextBox x:Name="HostIpTextBox" Text="Server host ip" HorizontalAlignment="Left" Height="23" Margin="10,45,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="161"/>
+        <TextBox x:Name="PortTextBox" HorizontalAlignment="Left" Height="23" Margin="187,45,0,0" TextWrapping="Wrap" Text="8080" VerticalAlignment="Top" Width="48"/>
+        <Label Content="Server Hostname ou IP:" HorizontalAlignment="Left" Margin="10,19,0,0" VerticalAlignment="Top" Width="161"/>
+        <Label Content="Server port:" HorizontalAlignment="Left" Margin="187,19,0,0" VerticalAlignment="Top" Width="77"/>
+        <Button Content="Ok" HorizontalAlignment="Left" Margin="269,23,0,0" VerticalAlignment="Top" Width="60" Height="45" Click="Button_Click_1"/>
+
+    </Grid>
+</Window>
