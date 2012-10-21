@@ -67,7 +67,7 @@ void SaveImageToJpegFile(char *filename, gdImagePtr im)
 src_t *OpenCameraStream(char *device, int width, int height, int fps) {
 	src_t *src = (src_t*)malloc(sizeof(src_t));
 	
-	stdout = fopen("RaspberryCamLogs.txt", "w");
+	//stdout = fopen("RaspberryCamLogs.txt", "w");
 	
 	src->input = strdup("0");
 	src->tuner = 0;
@@ -102,7 +102,7 @@ pictureBuffer ReadVideoFrame(src_t *src, int jpegQuantity) {
 	int frames = 1;
 	pictureBuffer buffer;
 	
-	stdout = fopen("RaspberryCamLogs.txt", "w");
+	//stdout = fopen("RaspberryCamLogs.txt", "w");
 	
 	abitmap = (avgbmp_t*)calloc(src->width * src->height * 3, sizeof(avgbmp_t));
 	if(!abitmap)

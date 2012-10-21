@@ -14,7 +14,13 @@ namespace RaspberryCam.TestApplication
                 .Named("Camera 1").WithDevicePath("/dev/video0")
                 .Memorize();
 
-            //cameras.Get("Camera 1").SavePicture(new PictureSize(640, 480), "Test3.jpg", 20);
+            cameras.Get("Camera 1").SavePicture(new PictureSize(640, 480), "Test1.jpg", 20);
+            
+            //Or
+
+            cameras.Default.SavePicture(new PictureSize(640, 480), "Test2.jpg", 20);
+
+            //Best practices: cameras should be a single instance in your program
 
             //var videoServer = new HttpVideoServer(80, cameras);
 

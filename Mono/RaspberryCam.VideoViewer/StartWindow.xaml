@@ -8,6 +8,5 @@
         <Label Content="Server Hostname ou IP:" HorizontalAlignment="Left" Margin="10,19,0,0" VerticalAlignment="Top" Width="161"/>
         <Label Content="Server port:" HorizontalAlignment="Left" Margin="187,19,0,0" VerticalAlignment="Top" Width="77"/>
         <Button Content="Ok" HorizontalAlignment="Left" Margin="269,23,0,0" VerticalAlignment="Top" Width="60" Height="45" Click="Button_Click_1"/>
-
     </Grid>
 </Window>
