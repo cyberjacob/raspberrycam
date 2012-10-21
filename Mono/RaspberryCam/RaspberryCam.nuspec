@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <licenseUrl>http://opensource.org/licenses/GPL-2.0</licenseUrl>
+    <projectUrl>https://bitbucket.org/rflechner/raspberrycam/wiki/Home</projectUrl>
+    <iconUrl>https://bitbucket-assetroot.s3.amazonaws.com/c/photos/2012/Oct/21/raspberrycam-logo-946792564-8_avatar.png</iconUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>
+      RaspberryCam is a Mono/.NET assembly providing access to cameras plugged in your Raspberry Pi.
+
+      It is an initiative of the Raspberry# Community, aimed at providing tools and information concerning use of Raspberry Pi boards with Mono/.NET framework.
+      Parts of this work are based on v4l C library and some fswebcam source code functions 
+    </description>
+    <copyright>Copyright 2012</copyright>
+    <tags>Raspberrypi Raspberry pi webcam camera photo picture</tags>
+  </metadata>
+  <files>
+    <file src="Raspberry.IO.GeneralPurpose\bin\release\Raspberry.IO.GeneralPurpose.dll" target="lib\net40" />
+    <file src="Raspberry.IO.GeneralPurpose\bin\release\Raspberry.IO.GeneralPurpose.pdb" target="lib\net40" />
+    <file src="Raspberry.IO.GeneralPurpose\bin\release\Raspberry.IO.GeneralPurpose.xml" target="lib\net40" />
+    <file src="RaspberryCam\bin\Release\RaspberryCam.so" target="lib\net40" />
+  </files>
+</package>

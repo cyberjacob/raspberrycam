@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("RaspberryCam")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Take pictures and videos from a webcam pluged in your Raspberry pi.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Hewlett-Packard Company")]
+[assembly: AssemblyCompany("www.raspberry-sharp.org")]
 [assembly: AssemblyProduct("RaspberryCam")]
-[assembly: AssemblyCopyright("Copyright © Hewlett-Packard Company 2012")]
+[assembly: AssemblyCopyright("Copyright © www.raspberry-sharp.org 2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
