@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>$id$</id>
+    <id>RaspberryCam</id>
     <version>$version$</version>
     <title>$title$</title>
     <authors>$author$</authors>
@@ -20,9 +20,6 @@
     <tags>Raspberrypi Raspberry pi webcam camera photo picture</tags>
   </metadata>
   <files>
-    <file src="Raspberry.IO.GeneralPurpose\bin\release\Raspberry.IO.GeneralPurpose.dll" target="lib\net40" />
-    <file src="Raspberry.IO.GeneralPurpose\bin\release\Raspberry.IO.GeneralPurpose.pdb" target="lib\net40" />
-    <file src="Raspberry.IO.GeneralPurpose\bin\release\Raspberry.IO.GeneralPurpose.xml" target="lib\net40" />
-    <file src="RaspberryCam\bin\Release\RaspberryCam.so" target="lib\net40" />
+    <file src="bin\Release\RaspberryCam.so" target="lib\net40" />
   </files>
 </package>
