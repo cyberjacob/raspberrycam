@@ -64,6 +64,16 @@ void SaveImageToJpegFile(char *filename, gdImagePtr im)
   gdFree(data);  
 }
 
+pictureBuffer ConvertToPictureBuffer(gdImagePtr im, int quantity) {
+	pictureBuffer buffer;
+	
+	memset(&buffer, 0, sizeof(buffer));
+	
+	buffer.data = (char *) gdImageJpegPtr(im, &(buffer.size), quantity);
+	
+	return buffer;
+}
+
 src_t *OpenCameraStream(char *device, int width, int height, int fps) {
 	src_t *src = (src_t*)malloc(sizeof(src_t));
 	
@@ -130,7 +140,7 @@ pictureBuffer GrabVideoFrame(src_t *src) {
 	return buffer;
 }
 
-pictureBuffer ReadVideoFrame(src_t *src, int jpegQuantity) {
+pictureBuffer ReadVideoFrame1(src_t *src, int jpegQuantity) {
 	avgbmp_t *abitmap, *pbitmap;
 	gdImage *image, *original;
 	uint32_t frame;
@@ -272,7 +282,7 @@ gdImage *grabPicture(char *device, int width, int height) {
 	}
 	
 	pbitmap = abitmap;
-		
+	
 	for(y = 0; y < src.height; y++)
 		for(x = 0; x < src.width; x++)
 		{
@@ -294,7 +304,7 @@ gdImage *grabPicture(char *device, int width, int height) {
 	{
 		puts("Out of memory.");
 		gdImageDestroy(image);
-		return(-1);
+		return NULL;
 	}
 	
 	gdImageDestroy(original);
@@ -302,7 +312,80 @@ gdImage *grabPicture(char *device, int width, int height) {
 	return image;
 }
 
+pictureBuffer ReadVideoFrame(src_t *src, int jpegQuantity) {
+	pictureBuffer buffer;
+	
+	uint32_t x, y, hlength;
+	uint8_t *himg = NULL;
+	gdImage *im;
+	int i;
+	
+	memset(&buffer, 0, sizeof(buffer));
+	
+	src_grab(src);
+	
+//	puts("ReadVideoFrame");
+	
+	/* MJPEG data may lack the DHT segment required for decoding... */
+	i = verify_jpeg_dht(src->img, src->length, &himg, &hlength);
+	
+	im = gdImageCreateFromJpegPtr(hlength, himg);
+	if(i == 1) free(himg);
+	
+	if(!im)
+		return buffer;
+	
+	buffer = ConvertToPictureBuffer(im, jpegQuantity);
+	
+	gdImageDestroy(im);
+	
+	return buffer;
+}
+
 int main(void) {
+	FILE *out;
+	src_t *src = OpenCameraStream("/dev/video0", 640, 480, 20);
+	pictureBuffer buffer;
+	
+	uint32_t x, y, hlength;
+	uint8_t *himg = NULL;
+	gdImage *im;
+	int i;
+	
+	memset(&buffer, 0, sizeof(buffer));
+	
+	src_grab(src);
+	//buffer.data = (char*) src->img;
+	//buffer.size = src->length;
+	
+	/* MJPEG data may lack the DHT segment required for decoding... */
+	i = verify_jpeg_dht(src->img, src->length, &himg, &hlength);
+	
+	im = gdImageCreateFromJpegPtr(hlength, himg);
+	if(i == 1) free(himg);
+	
+	if(!im)
+		return(-1);
+	
+	
+	buffer = ConvertToPictureBuffer(im, 100);
+	
+	gdImageDestroy(im);
+	
+	out = fopen("out5.jpg", "wb");
+	if (fwrite(buffer.data, 1, buffer.size, out) != buffer.size) {
+		puts("Error");
+	}
+	fclose(out);
+	
+	CloseCameraStream(src);
+	
+	free(buffer.data);
+	
+	return EXIT_SUCCESS;
+}
+
+int main1(void) {
 
 	gdImage *image = grabPicture(strdup("/dev/video0"), 640, 480);
 	

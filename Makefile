@@ -10,6 +10,7 @@ TARGET =	RaspberryCam
 
 $(TARGET):	$(OBJS)
 	$(CC) -shared -fPIC $(OBJS) $(LIBS) $(LDFLAGS) -o $(TARGET).so
+	#$(CC) -fPIC $(OBJS) $(LIBS) $(LDFLAGS) -o $(TARGET)
 
 all:	$(TARGET)
 
@@ -18,4 +19,6 @@ clean:
 
 install:
 	cp *.so /lib
-	
+
+exe:
+	$(CC) -fPIC $(OBJS) $(LIBS) $(LDFLAGS) -o $(TARGET)
