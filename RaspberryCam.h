@@ -47,4 +47,6 @@ extern src_t *OpenCameraStream(char *device, int width, int height, int fps);
 extern void CloseCameraStream(src_t *src);
 extern pictureBuffer ReadVideoFrame(src_t *src, int jpegQuantity);
 
+extern pictureBuffer GrabVideoFrame(src_t *src);
+
 #endif /*RASPBERRYCAM_H_*/
