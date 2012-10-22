@@ -61,7 +61,9 @@
     <None Include="RaspberryCam.so">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="RaspberryCam.nuspec" />
+    <None Include="RaspberryCam.nuspec">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Readme.txt" />
