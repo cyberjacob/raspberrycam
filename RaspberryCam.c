@@ -92,6 +92,44 @@ void CloseCameraStream(src_t *src) {
 	src_close(src);
 }
 
+int fswc_add_image_rgb565(src_t *src, avgbmp_t *abitmap)
+{
+	uint16_t *img = (uint16_t *) src->img;
+	uint32_t i = src->width * src->height;
+	
+	if(src->length >> 1 < i) return(-1);
+	
+	while(i-- > 0)
+	{
+		uint8_t r, g, b;
+		
+		r = (*img & 0xF800) >> 8;
+		g = (*img &  0x7E0) >> 3;
+		b = (*img &   0x1F) << 3;
+		
+		*(abitmap++) += r + (r >> 5);
+		*(abitmap++) += g + (g >> 6);
+		*(abitmap++) += b + (b >> 5);
+		
+		img++;
+	}
+	
+	return(0);
+}
+
+pictureBuffer GrabVideoFrame(src_t *src) {
+	pictureBuffer buffer;
+	
+	src_grab(src);
+	
+	memset(&buffer, 0, sizeof(buffer));
+	
+	buffer.size = src->length;
+	buffer.data = (char *) src->img;
+	
+	return buffer;
+}
+
 pictureBuffer ReadVideoFrame(src_t *src, int jpegQuantity) {
 	avgbmp_t *abitmap, *pbitmap;
 	gdImage *image, *original;

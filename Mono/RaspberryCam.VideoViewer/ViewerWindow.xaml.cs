@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using AForge.Video.VFW;
 using RaspberryCam.Clients;
 
 namespace RaspberryCam.VideoViewer
@@ -18,6 +20,9 @@ namespace RaspberryCam.VideoViewer
         private int imageWidth;
         private int imageHeight;
         private int compressionRate;
+        private int grabWidth;
+        private int grabHeight;
+        private AVIWriter aviWriter;
 
         public ViewerWindow(string serverHostIp, int serverPort)
         {
@@ -25,9 +30,15 @@ namespace RaspberryCam.VideoViewer
 
             videoClient = new TcpVideoClient(serverHostIp, serverPort);
 
-            imageWidth = 320*2;
-            imageHeight = 240*2;
+            grabWidth = 320;
+            grabHeight = 240;
 
+            imageWidth = grabWidth * 2;
+
+            imageHeight = grabHeight*2;
+
+            aviWriter = new AVIWriter();
+            
             ImageViewer.Width = imageWidth;
             ImageViewer.Height = imageHeight;
             compressionRate = 30;
@@ -72,6 +83,8 @@ namespace RaspberryCam.VideoViewer
             StartVideoButton.Visibility = Visibility.Hidden;
             StopVideoButton.Visibility = Visibility.Visible;
 
+            aviWriter.Open("capture.avi", grabWidth, grabHeight);
+
             streaming = true;
 
             Task.Factory.StartNew(() =>
@@ -82,7 +95,12 @@ namespace RaspberryCam.VideoViewer
                         var data = videoClient.GetVideoFrame(compressionRate);
                         Dispatcher.BeginInvoke((UiDelegate)delegate
                         {
-                            var bitmapImage = LoadImage(data);
+                            BitmapImage bitmapImage = LoadImage(data);
+
+                            aviWriter.FrameRate = 20;
+                            
+                            aviWriter.AddFrame(BitmapImage2Bitmap(bitmapImage));
+
                             ImageViewer.Source = bitmapImage;
 
                             UpdateLayout();
@@ -95,7 +113,25 @@ namespace RaspberryCam.VideoViewer
                             StartVideoButton.Visibility = Visibility.Visible;
                             StopVideoButton.Visibility = Visibility.Hidden;
                         }, DispatcherPriority.Normal);
+
+                    aviWriter.Close();
                 });
+        }
+
+        private Bitmap BitmapImage2Bitmap(BitmapImage bitmapImage)
+        {
+            // BitmapImage bitmapImage = new BitmapImage(new Uri("../Images/test.png", UriKind.Relative));
+
+            using (MemoryStream outStream = new MemoryStream())
+            {
+                BitmapEncoder enc = new BmpBitmapEncoder();
+                enc.Frames.Add(BitmapFrame.Create(bitmapImage));
+                enc.Save(outStream);
+                System.Drawing.Bitmap bitmap = new System.Drawing.Bitmap(outStream);
+
+                // return bitmap; <-- leads to problems, stream is closed/closing ...
+                return new Bitmap(bitmap);
+            }
         }
 
         private void Button_Click_2(object sender, RoutedEventArgs e)

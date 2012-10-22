@@ -14,41 +14,20 @@ namespace RaspberryCam.TestApplication
                 .Named("Camera 1").WithDevicePath("/dev/video0")
                 .Memorize();
 
-            cameras.Get("Camera 1").SavePicture(new PictureSize(640, 480), "Test1.jpg", 20);
-            
-            //Or
-
-            cameras.Default.SavePicture(new PictureSize(640, 480), "Test2.jpg", 20);
-
-            //Best practices: cameras should be a single instance in your program
-
-            //var videoServer = new HttpVideoServer(80, cameras);
+            //cameras.Get("Camera 1").SavePicture(new PictureSize(640, 480), "Test1.jpg", 20);
+            //cameras.Default.SavePicture(new PictureSize(640, 480), "Test2.jpg", 20);
 
             var videoServer = new TcpVideoServer(8080, cameras);
             Console.WriteLine("Server strating ...");
             videoServer.Start();
             Console.WriteLine("Server strated.");
 
-            //IntPtr src = RaspberryCamInterop.FakeOpen("/dev/video0", 640, 480);
-
-            //Console.WriteLine("src adress: {0}", src);
-
-            //RaspberryCamInterop.DisplaySrc(src);
 
             //var handle = RaspberryCamInterop.OpenCameraStream("/dev/video0", 640, 480, 20);
-
-            //var pictureBuffer = RaspberryCamInterop.ReadVideoFrame(handle, 100);
-            
+            //var pictureBuffer = RaspberryCamInterop.GrabVideoFrame(handle);
             //var data = new byte[pictureBuffer.Size];
             //Marshal.Copy(pictureBuffer.Data, data, 0, pictureBuffer.Size);
-            //File.WriteAllBytes("video1.jpg", data);
-
-            //pictureBuffer = RaspberryCamInterop.ReadVideoFrame(handle, 100);
-            //data = new byte[pictureBuffer.Size];
-            //Marshal.Copy(pictureBuffer.Data, data, 0, pictureBuffer.Size);
-
-            //File.WriteAllBytes("video2.jpg", data);
-
+            //File.WriteAllBytes("grab.mjpeg", data);
             //RaspberryCamInterop.CloseCameraStream(handle);
 
 

@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaspberryCam.ServerExample"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaspberryCam.VideoViewer", "RaspberryCam.VideoViewer\RaspberryCam.VideoViewer.csproj", "{E3D826DC-F5DD-43E7-95AF-F988B3E2AC8A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaspberryCam.CompressionLearning", "RaspberryCam.CompressionLearning\RaspberryCam.CompressionLearning.csproj", "{F7224097-6C84-48F7-9029-36BA70632083}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +27,10 @@ Global
 		{E3D826DC-F5DD-43E7-95AF-F988B3E2AC8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E3D826DC-F5DD-43E7-95AF-F988B3E2AC8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E3D826DC-F5DD-43E7-95AF-F988B3E2AC8A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F7224097-6C84-48F7-9029-36BA70632083}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7224097-6C84-48F7-9029-36BA70632083}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7224097-6C84-48F7-9029-36BA70632083}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7224097-6C84-48F7-9029-36BA70632083}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
