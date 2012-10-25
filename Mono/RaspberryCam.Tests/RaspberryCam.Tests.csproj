@@ -43,7 +43,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ColorCombinaison.cs" />
+    <Compile Include="Compression\BlocksBuilder.cs" />
     <Compile Include="ImageCompressonTests.cs" />
+    <Compile Include="Pixel.cs" />
+    <Compile Include="PixelsBlock.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
