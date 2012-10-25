@@ -31,7 +31,7 @@ namespace RaspberryCam.Tests.Compression
         public Rectangle GetBlockBounds(int index)
         {
             var left = index % blockCountX;
-            var top = index/blockCountX + (index % blockCountX == 0 ? 0 : 1);
+            var top = index/blockCountX;// +(index % blockCountX == 0 ? 0 : 1);
 
             return new Rectangle(BlockSize * left, BlockSize * top, BlockSize, BlockSize);
         }
@@ -134,6 +134,19 @@ namespace RaspberryCam.Tests.Compression
             }
 
             return blocks;
+        }
+
+        public List<PixelsBlock> GetBlocks2()
+        {
+            var pixelsBlocks = new List<PixelsBlock>();
+
+            for (int i = 0; i < GetBlockCount(); i++)
+            {
+                var block = GetPixelsBlock(i);
+                pixelsBlocks.Add(block);
+            }
+
+            return pixelsBlocks;
         }
 
         public List<PixelsBlock> GetBlocks()
