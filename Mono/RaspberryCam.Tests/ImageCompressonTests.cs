@@ -32,8 +32,12 @@ namespace RaspberryCam.Tests
 
             var pixelsBlocks = new List<PixelsBlock>();
 
+            bool altern = false;
             for (int i = 0; i < blocksBuilder.GetBlockCount(); i++)
             {
+                altern = !altern;
+                if (altern)
+                    continue;
                 var block = blocksBuilder.GetPixelsBlock(i);
                 pixelsBlocks.Add(block);
             }
