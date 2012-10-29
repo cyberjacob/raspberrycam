@@ -21,7 +21,7 @@ namespace RaspberryCam.Tests.Compression
             blockCountY = bitmap.Height / BlockSize;
         }
 
-        private const int bytesPerPixel = 4;
+        public const int BytesPerPixel = 4;
 
         public int GetBlockCount()
         {
@@ -65,11 +65,11 @@ namespace RaspberryCam.Tests.Compression
             BitmapData bmpData = bitmap.LockBits(rect, ImageLockMode.ReadWrite, bitmap.PixelFormat);
 
             IntPtr ptr = bmpData.Scan0;
-
+            
             // Declare an array to hold the bytes of the bitmap.
             // This code is specific to a bitmap with 32 bits per pixels 
             // (32 bits = 4 bytes, 3 for RGB and 1 byte for alpha).
-            int numBytes = bitmap.Width * bitmap.Height * bytesPerPixel;
+            int numBytes = bitmap.Width * bitmap.Height * BytesPerPixel;
             var argbValues = new byte[numBytes];
 
             // Copy the ARGB values into the array.
@@ -121,8 +121,9 @@ namespace RaspberryCam.Tests.Compression
                             //var color = bitmap.GetPixel(x, y);
                             var index = x*y;
                             byte b = imageData[index];
-                            byte g = imageData[index+1];
-                            byte r = imageData[index+2];
+                            byte g = imageData[++index];
+                            byte r = imageData[++index];
+                            byte a = imageData[++index];
 
                             pixels.Add(new Pixel(x, y, Color.FromArgb(r, g, b)));
                         }
