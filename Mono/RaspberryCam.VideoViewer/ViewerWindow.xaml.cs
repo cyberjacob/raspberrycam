@@ -103,14 +103,29 @@ namespace RaspberryCam.VideoViewer
                         {
                             frameSizes.Add(new KeyValuePair<DateTime, int>(DateTime.UtcNow, data.Length));
 
+                            var lastFrameSizes = frameSizes.Where(f => f.Key >= DateTime.UtcNow - TimeSpan.FromSeconds(1)).ToList();
+                            var totalBytesPerSecond = lastFrameSizes.Sum(f => f.Value);
+                            var fps = totalBytesPerSecond / 1024;
+
                             if (lastSpeedRefresh < DateTime.UtcNow - TimeSpan.FromSeconds(1))
                             {
-                                Task.Factory.StartNew(() => DisplaySpeed(data));
+                                Dispatcher.BeginInvoke((UiDelegate)delegate
+                                    {
+                                        SpeedLabel.Content =
+                                        string.Format("{0} Kb per frame / {1} Kb per second / {2} frames / second",
+                                                      data.Length / 1024, fps,
+                                                      lastFrameSizes.Count);
+                                    }, DispatcherPriority.Normal);
+
+                                //Task.Factory.StartNew(() => DisplaySpeed(data));
+
+                                frameSizes.RemoveAll(kv => kv.Key < DateTime.UtcNow - TimeSpan.FromSeconds(1));
+                                lastSpeedRefresh = DateTime.UtcNow;
                             }
 
                             var bitmapImage = LoadImage(data);
 
-                            aviWriter.FrameRate = 20;
+                            aviWriter.FrameRate = fps;
                             if (streaming)
                                 aviWriter.AddFrame(BitmapImage2Bitmap(bitmapImage));
 
@@ -131,39 +146,47 @@ namespace RaspberryCam.VideoViewer
                 });
         }
 
-        private void DisplaySpeed(byte[] data)
-        {
-            var lastFrameSizes =
-                frameSizes.Where(f => f.Key >= DateTime.UtcNow - TimeSpan.FromSeconds(1)).
-                    ToList();
-            var totalBytesPerSecond = lastFrameSizes.Sum(f => f.Value);
+        //private void DisplaySpeed(byte[] data)
+        //{
+        //    var lastFrameSizes =
+        //        frameSizes.Where(f => f.Key >= DateTime.UtcNow - TimeSpan.FromSeconds(1)).
+        //            ToList();
+        //    var totalBytesPerSecond = lastFrameSizes.Sum(f => f.Value);
 
-            Dispatcher.BeginInvoke((UiDelegate)delegate
-            {
-                SpeedLabel.Content =
-                    string.Format("{0} Kb per frame / {1} Kb per second / {2} frames / second",
-                                  data.Length / 1024, totalBytesPerSecond / 1024,
-                                  lastFrameSizes.Count);
-            }, DispatcherPriority.Normal);
+        //    Dispatcher.BeginInvoke((UiDelegate)delegate
+        //    {
+        //        SpeedLabel.Content =
+        //            string.Format("{0} Kb per frame / {1} Kb per second / {2} frames / second",
+        //                          data.Length / 1024, totalBytesPerSecond / 1024,
+        //                          lastFrameSizes.Count);
+        //    }, DispatcherPriority.Normal);
 
-            frameSizes.RemoveAll(kv => kv.Key < DateTime.UtcNow - TimeSpan.FromSeconds(1));
+        //    frameSizes.RemoveAll(kv => kv.Key < DateTime.UtcNow - TimeSpan.FromSeconds(1));
 
-            lastSpeedRefresh = DateTime.UtcNow;
-        }
+        //    lastSpeedRefresh = DateTime.UtcNow;
+        //}
 
         private Bitmap BitmapImage2Bitmap(BitmapImage bitmapImage)
         {
             // BitmapImage bitmapImage = new BitmapImage(new Uri("../Images/test.png", UriKind.Relative));
 
-            using (var outStream = new MemoryStream())
+            try
             {
-                BitmapEncoder enc = new BmpBitmapEncoder();
-                enc.Frames.Add(BitmapFrame.Create(bitmapImage));
-                enc.Save(outStream);
-                var bitmap = new Bitmap(outStream);
+                using (var outStream = new MemoryStream())
+                {
+                    BitmapEncoder enc = new BmpBitmapEncoder();
+                    enc.Frames.Add(BitmapFrame.Create(bitmapImage));
+                    enc.Save(outStream);
+                    var bitmap = new Bitmap(outStream);
 
-                // return bitmap; <-- leads to problems, stream is closed/closing ...
-                return new Bitmap(bitmap);
+                    // return bitmap; <-- leads to problems, stream is closed/closing ...
+                    return new Bitmap(bitmap);
+                }
+            }
+            catch
+            {
+                var image = Bitmap.FromFile("Images/angel-of-death.jpg");
+                return new Bitmap(image);
             }
         }
 
