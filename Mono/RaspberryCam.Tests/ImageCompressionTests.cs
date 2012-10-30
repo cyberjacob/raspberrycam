@@ -11,9 +11,49 @@ using RaspberryCam.Tests.Compression;
 namespace RaspberryCam.Tests
 {
     [TestFixture]
-    public class ImageCompressonTests
+    public class ImageCompressionTests
     {
         const int BlockSize = 16;
+
+        [Test]
+        public void When_store_with_BitmapCompressor()
+        {
+            var bytes1 = File.ReadAllBytes("Files/webcam_screenshot1.jpg");
+
+            var stopwatch = Stopwatch.StartNew();
+
+            var memoryStream = new MemoryStream(bytes1);
+            var image = Image.FromStream(memoryStream);
+            var bitmap = new Bitmap(image);
+            var blocksBuilder = new BlocksBuilder(bitmap);
+            var pixelsBlocks = new List<PixelsBlock>();
+
+            for (int i = 0; i < blocksBuilder.GetBlockCount(); i++)
+            {
+                var block = blocksBuilder.GetPixelsBlock(i);
+                pixelsBlocks.Add(block);
+            }
+
+            var compressor = new BitmapCompressor();
+
+            using (FileStream fileStream = File.OpenWrite("out.compressed"))
+            using (var writer = new BinaryWriter(fileStream))
+            {
+                foreach (var block in pixelsBlocks)
+                {
+                    foreach (Pixel pixel in block.Pixels)
+                    {
+                        ushort color = compressor.CompressColor(pixel.Color);
+                        writer.Write(color);
+                    }
+                }
+
+                fileStream.Flush(true);
+            }
+
+            stopwatch.Stop();
+            var elapsed = stopwatch.Elapsed;
+        }
 
         [Test]
         public void When_rounding_colors()
@@ -38,24 +78,30 @@ namespace RaspberryCam.Tests
 
             foreach (var block in pixelsBlocks)
             {
-                foreach (var pixel in block.Pixels)
+                foreach (Pixel pixel in block.Pixels)
                 {
-                    var colorEncodingRate = 4; // coding with 6 bits (255/4 = 63)
+                    //var colorEncodingRate = 4; // coding with 6 bits (255/4 = 63)
+                    //var bits = 6;
+                    
+                    var colorEncodingRate = 8; // coding with 5 bits (255/8 = 31)
+                    var bits = 5;
+                    
                     ushort red = (ushort)Math.Max(0, pixel.Color.R / colorEncodingRate * colorEncodingRate);
                     ushort green = (ushort)Math.Max(0, pixel.Color.G / colorEncodingRate * colorEncodingRate);
                     ushort blue = (ushort)Math.Max(0, pixel.Color.B / colorEncodingRate * colorEncodingRate);
 
                     int pixelColor = red;
-                    pixelColor = (pixelColor << 6) + green;
-                    pixelColor = (pixelColor << 6) + blue;
+                    
+                    pixelColor = (pixelColor << bits) + green;
+                    pixelColor = (pixelColor << bits) + blue;
 
                     int pixelColor2 = pixelColor;
 
-                    ushort blue2 = (ushort)(pixelColor2 & 0x0000FF);
-                    pixelColor2 = pixelColor2 >> 6;
+                    ushort blue2 = (ushort) (pixelColor2 & 0x0000FF);
+                    pixelColor2 = pixelColor2 >> bits;
                     ushort green2 = (ushort) (pixelColor2 & 0x0000FF);
-                    pixelColor2 = pixelColor2 >> 6;
-                    ushort red2 = (ushort)(pixelColor2 & 0x0000FF);
+                    pixelColor2 = pixelColor2 >> bits;
+                    ushort red2 = (ushort) (pixelColor2 & 0x0000FF);
 
 
                     //var color = Color.FromArgb(red, green, blue);
@@ -68,7 +114,7 @@ namespace RaspberryCam.Tests
             output.Save("When_rounding_colors.bmp");
 
             stopwatch.Stop();
-            var elapsed = stopwatch.Elapsed;   
+            var elapsed = stopwatch.Elapsed;
         }
 
         [Test]
@@ -139,21 +185,24 @@ namespace RaspberryCam.Tests
         [Test]
         public void When_generating_combinaisons()
         {
+            int colorPalette = 255 / 8;
+
             var stopwatch = Stopwatch.StartNew();
 
-            var combinaisons = new List<ColorCombinaison>();
+            var combinaisons = new List<ushort>();
+            var compressor = new BitmapCompressor();
 
             Int64 count = 0;
 
-            //for (int x = 0; x < BlockSize; x++)
-            //{
-            //    for (int y = 0; y < BlockSize; y++)
-            //    {
-                    for (byte red = 0; red < 255; red++)
+            for (int x = 0; x < BlockSize; x++)
+            {
+                for (int y = 0; y < BlockSize; y++)
+                {
+                    for (byte red = 0; red < colorPalette; red++)
                     {
-                        for (byte green = 0; green < 255; green++)
+                        for (byte green = 0; green < colorPalette; green++)
                         {
-                            for (byte blue = 0; blue < 255; blue++)
+                            for (byte blue = 0; blue < colorPalette; blue++)
                             {
                                 //combinaisons.Add(new ColorCombinaison
                                 //                        {
@@ -162,12 +211,14 @@ namespace RaspberryCam.Tests
                                 //                            Blue = blue
                                 //                        });
 
+                                combinaisons.Add(compressor.CompressColor(Color.FromArgb(red, green, blue)));
+
                                 count++;
                             }
                         }
                     }
-            //    }
-            //}
+                }
+            }
 
             stopwatch.Stop();
             var elapsed = stopwatch.Elapsed;   
