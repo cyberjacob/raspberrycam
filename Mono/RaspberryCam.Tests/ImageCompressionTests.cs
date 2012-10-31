@@ -185,43 +185,119 @@ namespace RaspberryCam.Tests
         [Test]
         public void When_generating_combinaisons()
         {
-            int colorPalette = 255 / 8;
+            int colorPalette = 255/8;
 
             var stopwatch = Stopwatch.StartNew();
 
-            var combinaisons = new List<ushort>();
+            var colors = new List<ushort>();
             var compressor = new BitmapCompressor();
+            var combinaisons = new List<ushort[,]>();
+            var matrix = new ushort[BlockSize,BlockSize];
 
             Int64 count = 0;
+
+            for (byte red = 0; red < 255; red++)
+            {
+                for (byte green = 0; green < 255; green++)
+                {
+                    for (byte blue = 0; blue < 255; blue++)
+                    {
+                        colors.Add(compressor.CompressColor(Color.FromArgb(red, green, blue)));
+                        count++;
+                    }
+                }
+            }
+
+            colors = colors.Distinct().ToList();
 
             for (int x = 0; x < BlockSize; x++)
             {
                 for (int y = 0; y < BlockSize; y++)
                 {
-                    for (byte red = 0; red < colorPalette; red++)
+                    foreach (var color in colors)
                     {
-                        for (byte green = 0; green < colorPalette; green++)
+                        matrix[x, y] = color;
+                        var copy = CopyMatrix(matrix, BlockSize, BlockSize);
+                        combinaisons.Add(copy);
+                    }
+                }
+            }
+            
+            stopwatch.Stop();
+            var elapsed = stopwatch.Elapsed;   
+        }
+
+        [Test]
+        public void Find_matrices_test()
+        {
+            const int n = 2;
+            const int m = 2;
+            var colors = new ushort[] { 0, 1, 2 };
+
+            var combinaisons = new List<ushort[,]>();
+            var matrix = new ushort[n, m];
+
+            for (int x = 0; x < n; x++)
+            {
+                for (int y = 0; y < m; y++)
+                {
+                    foreach (var color in colors)
+                    {
+                        matrix[x, y] = color;
+
+                        for (int x2 = 0; x2 < n; x2++)
                         {
-                            for (byte blue = 0; blue < colorPalette; blue++)
+                            for (int y2 = 0; y2 < m; y2++)
                             {
-                                //combinaisons.Add(new ColorCombinaison
-                                //                        {
-                                //                            Red = red,
-                                //                            Green = green,
-                                //                            Blue = blue
-                                //                        });
+                                //if (x == x2 && y == y2)
+                                //    continue;
 
-                                combinaisons.Add(compressor.CompressColor(Color.FromArgb(red, green, blue)));
-
-                                count++;
+                                matrix[x2, y2] = color;
+                                var copy = CopyMatrix(matrix, n, m);
+                                combinaisons.Add(copy);        
                             }
                         }
                     }
                 }
             }
 
-            stopwatch.Stop();
-            var elapsed = stopwatch.Elapsed;   
+            var toFind = new ushort[n,m]
+                {
+                    {1, 2},
+                    {1, 2},
+                };
+            
+            var list = combinaisons.Where(c => AreEqual(c, toFind, n, m)).ToList();
+        }
+
+        private static ushort[,] CopyMatrix(ushort[,] matrix, int width, int height)
+        {
+            var copy = new ushort[width,height];
+
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    copy[x, y] = matrix[x, y];
+                }
+            }
+
+            return copy;
+        }
+
+        private bool AreEqual(ushort[,] matrix1, ushort[,] matrix2, int width, int height)
+        {
+
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    if (matrix1[x, y] != matrix2[x, y])
+                        return false;
+                }
+            }
+
+            return true;
         }
 
         [Test]
