@@ -234,32 +234,8 @@ namespace RaspberryCam.Tests
             const int m = 2;
             var colors = new ushort[] { 0, 1, 2 };
 
-            var combinaisons = new List<ushort[,]>();
-            var matrix = new ushort[n, m];
-
-            for (int x = 0; x < n; x++)
-            {
-                for (int y = 0; y < m; y++)
-                {
-                    foreach (var color in colors)
-                    {
-                        matrix[x, y] = color;
-
-                        for (int x2 = 0; x2 < n; x2++)
-                        {
-                            for (int y2 = 0; y2 < m; y2++)
-                            {
-                                //if (x == x2 && y == y2)
-                                //    continue;
-
-                                matrix[x2, y2] = color;
-                                var copy = CopyMatrix(matrix, n, m);
-                                combinaisons.Add(copy);        
-                            }
-                        }
-                    }
-                }
-            }
+            //var combinaisons = new List<ushort[,]>();
+            var combinaisons = CreateMatrix(n, m, colors).Distinct(new MatrixComparer(n, m)).ToList();
 
             var toFind = new ushort[n,m]
                 {
@@ -268,7 +244,85 @@ namespace RaspberryCam.Tests
                 };
             
             var list = combinaisons.Where(c => AreEqual(c, toFind, n, m)).ToList();
+
+            
         }
+
+        private static IEnumerable<ushort[,]> CreateMatrix(int n, int m, ushort[] colors)
+        {
+            if (colors.Length <= 0)
+                yield break;
+
+            var min = colors.First();
+
+            for (int x = 0; x < n; x++)
+            {
+                for (int y = 0; y < m; y++)
+                {
+                    foreach (var color in colors)
+                    {
+                        var matrix = GetNewMatrix(n, m, min);
+
+                        matrix[x, y] = color;
+                        var copy = CopyMatrix(matrix, n, m);
+                        yield return copy;
+                    }
+                }
+            }
+
+            var children = CreateMatrix(n, m, colors.Skip(1).ToArray()).ToList();
+            foreach (var child in children)
+            {
+                yield return child;
+            }
+        }
+
+        private static ushort[,] GetNewMatrix(int n, int m, ushort min)
+        {
+            var matrix = new ushort[n,m];
+
+            for (int x = 0; x < n; x++)
+                for (int y = 0; y < m; y++)
+                    matrix[x, y] = min;
+            return matrix;
+        }
+
+        //private static IEnumerable<ushort[,]> CreateMatrix(int n, int m, ushort[] colors, 
+        //    int skipX = -1, int skipY = -1, ushort forcedColor = 0)
+        //{
+        //    if (!colors.Any())
+        //        yield break;
+
+        //    var matrix = new ushort[n,m];
+
+        //    for (int x = 0; x < n; x++)
+        //    {
+        //        for (int y = 0; y < m; y++)
+        //        {
+        //            foreach (var color in colors)
+        //            {
+        //                matrix[x, y] = color;
+        //                if (x == skipX && y == skipY)
+        //                {
+
+        //                    continue;
+        //                }
+
+        //                var copy = CopyMatrix(matrix, n, m);
+        //                yield return copy;
+        //            }
+
+        //            if (x <= skipX || y <= skipY)
+        //                continue;
+
+        //            var children = CreateMatrix(n, m, colors.Skip(1).ToArray(), x, y).ToList();
+        //            foreach (var child in children)
+        //            {
+        //                yield return child;
+        //            }
+        //        }
+        //    }
+        //}
 
         private static ushort[,] CopyMatrix(ushort[,] matrix, int width, int height)
         {
@@ -342,6 +396,37 @@ namespace RaspberryCam.Tests
                 }
             }
 
+        }
+    }
+
+    public class MatrixComparer : IEqualityComparer<ushort[,]>
+    {
+        private decimal width;
+        private decimal height;
+
+        public MatrixComparer(decimal width, decimal height)
+        {
+            this.width = width;
+            this.height = height;
+        }
+
+        public bool Equals(ushort[,] matrix1, ushort[,] matrix2)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    if (matrix1[x, y] != matrix2[x, y])
+                        return false;
+                }
+            }
+
+            return true;
+        }
+
+        public int GetHashCode(ushort[,] obj)
+        {
+            return obj.GetHashCode();
         }
     }
 }
