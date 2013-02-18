@@ -125,13 +125,13 @@ namespace RaspberryCam.VideoViewer
 
                             var bitmapImage = LoadImage(data);
 
-                            try
-                            {
-                                if (fps > 0)
-                                    aviWriter.FrameRate = fps;
-                                if (streaming)
-                                    aviWriter.AddFrame(BitmapImage2Bitmap(bitmapImage));
-                            }catch{}
+                            //try
+                            //{
+                            //    if (fps > 0)
+                            //        aviWriter.FrameRate = fps;
+                            //    if (streaming)
+                            //        aviWriter.AddFrame(BitmapImage2Bitmap(bitmapImage));
+                            //}catch{}
 
                             ImageViewer.Source = bitmapImage;
 
