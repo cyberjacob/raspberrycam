@@ -14,6 +14,7 @@
         <Slider HorizontalAlignment="Left" Margin="524,616,0,0" VerticalAlignment="Top" Width="221" x:Name="CompressionSlider" Maximum="100" ValueChanged="CompressionSlider_ValueChanged" Grid.ColumnSpan="3"/>
         <Label Content="Compression" HorizontalAlignment="Left" Margin="436,616,0,0" VerticalAlignment="Top" Width="83"/>
         <Label x:Name="CompressionLabel" Content="30%" Grid.Column="2" HorizontalAlignment="Left" Margin="119,616,0,0" VerticalAlignment="Top" Width="38"/>
+        <Label x:Name="SpeedLabel" Content="" HorizontalAlignment="Left" Margin="10,614,0,0" VerticalAlignment="Top" Width="333"/>
 
     </Grid>
 </Window>
