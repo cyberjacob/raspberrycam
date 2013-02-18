@@ -1,10 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using AForge.Video.VFW;
 using RaspberryCam.Clients;
+using System.Linq;
 
 namespace RaspberryCam.VideoViewer
 {
@@ -13,21 +17,33 @@ namespace RaspberryCam.VideoViewer
     /// </summary>
     public partial class ViewerWindow : Window
     {
+        private readonly string captureAviFile;
         private readonly TcpVideoClient videoClient;
         private bool streaming = false;
         private int imageWidth;
         private int imageHeight;
         private int compressionRate;
+        private int grabWidth;
+        private int grabHeight;
+        private AVIWriter aviWriter;
 
-        public ViewerWindow(string serverHostIp, int serverPort)
+        public ViewerWindow(string serverHostIp, int serverPort, string captureAviFile)
         {
+            this.captureAviFile = captureAviFile;
             InitializeComponent();
 
             videoClient = new TcpVideoClient(serverHostIp, serverPort);
 
-            imageWidth = 320*2;
-            imageHeight = 240*2;
+            grabWidth = 320;
+            grabHeight = 240;
 
+            imageWidth = grabWidth * 2;
+            imageHeight = grabHeight*2;
+
+            Height = imageHeight + 210;
+
+            aviWriter = new AVIWriter();
+            
             ImageViewer.Width = imageWidth;
             ImageViewer.Height = imageHeight;
             compressionRate = 30;
@@ -64,13 +80,17 @@ namespace RaspberryCam.VideoViewer
             return image;
         }
 
+        private readonly List<KeyValuePair<DateTime, int>> frameSizes = new List<KeyValuePair<DateTime, int>>();
+        private DateTime lastSpeedRefresh = DateTime.MinValue;
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            videoClient.StartVideoStreaming(new PictureSize(imageWidth/2, imageHeight/2));
+            videoClient.StartVideoStreaming(new PictureSize(imageWidth/2, imageHeight/2), 20);
 
             StartVideoButton.Visibility = Visibility.Hidden;
             StopVideoButton.Visibility = Visibility.Visible;
+
+            aviWriter.Open(captureAviFile, grabWidth, grabHeight);
 
             streaming = true;
 
@@ -78,11 +98,41 @@ namespace RaspberryCam.VideoViewer
                 {
                     while (streaming)
                     {
-                        
                         var data = videoClient.GetVideoFrame(compressionRate);
                         Dispatcher.BeginInvoke((UiDelegate)delegate
                         {
+                            frameSizes.Add(new KeyValuePair<DateTime, int>(DateTime.UtcNow, data.Length));
+
+                            var lastFrameSizes = frameSizes.Where(f => f.Key >= DateTime.UtcNow - TimeSpan.FromSeconds(1)).ToList();
+                            var totalBytesPerSecond = lastFrameSizes.Sum(f => f.Value);
+                            var fps = totalBytesPerSecond / 1024;
+
+                            if (lastSpeedRefresh < DateTime.UtcNow - TimeSpan.FromSeconds(1))
+                            {
+                                Dispatcher.BeginInvoke((UiDelegate)delegate
+                                    {
+                                        SpeedLabel.Content =
+                                        string.Format("{0} Kb per frame / {1} Kb per second / {2} frames / second",
+                                                      data.Length / 1024, fps,
+                                                      lastFrameSizes.Count);
+                                    }, DispatcherPriority.Normal);
+
+                                //Task.Factory.StartNew(() => DisplaySpeed(data));
+
+                                frameSizes.RemoveAll(kv => kv.Key < DateTime.UtcNow - TimeSpan.FromSeconds(1));
+                                lastSpeedRefresh = DateTime.UtcNow;
+                            }
+
                             var bitmapImage = LoadImage(data);
+
+                            //try
+                            //{
+                            //    if (fps > 0)
+                            //        aviWriter.FrameRate = fps;
+                            //    if (streaming)
+                            //        aviWriter.AddFrame(BitmapImage2Bitmap(bitmapImage));
+                            //}catch{}
+
                             ImageViewer.Source = bitmapImage;
 
                             UpdateLayout();
@@ -95,7 +145,53 @@ namespace RaspberryCam.VideoViewer
                             StartVideoButton.Visibility = Visibility.Visible;
                             StopVideoButton.Visibility = Visibility.Hidden;
                         }, DispatcherPriority.Normal);
+
+                    aviWriter.Close();
                 });
+        }
+
+        //private void DisplaySpeed(byte[] data)
+        //{
+        //    var lastFrameSizes =
+        //        frameSizes.Where(f => f.Key >= DateTime.UtcNow - TimeSpan.FromSeconds(1)).
+        //            ToList();
+        //    var totalBytesPerSecond = lastFrameSizes.Sum(f => f.Value);
+
+        //    Dispatcher.BeginInvoke((UiDelegate)delegate
+        //    {
+        //        SpeedLabel.Content =
+        //            string.Format("{0} Kb per frame / {1} Kb per second / {2} frames / second",
+        //                          data.Length / 1024, totalBytesPerSecond / 1024,
+        //                          lastFrameSizes.Count);
+        //    }, DispatcherPriority.Normal);
+
+        //    frameSizes.RemoveAll(kv => kv.Key < DateTime.UtcNow - TimeSpan.FromSeconds(1));
+
+        //    lastSpeedRefresh = DateTime.UtcNow;
+        //}
+
+        private Bitmap BitmapImage2Bitmap(BitmapImage bitmapImage)
+        {
+            // BitmapImage bitmapImage = new BitmapImage(new Uri("../Images/test.png", UriKind.Relative));
+
+            try
+            {
+                using (var outStream = new MemoryStream())
+                {
+                    BitmapEncoder enc = new BmpBitmapEncoder();
+                    enc.Frames.Add(BitmapFrame.Create(bitmapImage));
+                    enc.Save(outStream);
+                    var bitmap = new Bitmap(outStream);
+
+                    // return bitmap; <-- leads to problems, stream is closed/closing ...
+                    return new Bitmap(bitmap);
+                }
+            }
+            catch
+            {
+                var image = Bitmap.FromFile("Images/angel-of-death.jpg");
+                return new Bitmap(image);
+            }
         }
 
         private void Button_Click_2(object sender, RoutedEventArgs e)

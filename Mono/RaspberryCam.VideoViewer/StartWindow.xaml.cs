@@ -26,7 +26,7 @@ namespace RaspberryCam.VideoViewer
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
             int serverPort = int.Parse(PortTextBox.Text);
-            var viewerWindow = new ViewerWindow(HostIpTextBox.Text, serverPort);
+            var viewerWindow = new ViewerWindow(HostIpTextBox.Text, serverPort, CaptureAviFileTextBox.Text);
             
             viewerWindow.Show();
 
