@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 14
+VisualStudioVersion = 14.0.22823.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaspberryCam", "RaspberryCam\RaspberryCam.csproj", "{73591E5B-4423-4623-A94C-E8A952E643EC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaspberryCam.ServerExample", "RaspberryCam.TestApplication\RaspberryCam.ServerExample.csproj", "{2C999EA8-C8BD-4EA2-A175-7341C62CE8D0}"
@@ -10,6 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaspberryCam.CompressionLearning", "RaspberryCam.CompressionLearning\RaspberryCam.CompressionLearning.csproj", "{F7224097-6C84-48F7-9029-36BA70632083}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaspberryCam.Tests", "RaspberryCam.Tests\RaspberryCam.Tests.csproj", "{F594C912-331D-4B00-862A-D8505A76FF3F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaspberryCam.Benchmark", "RaspberryCam.Benchmark\RaspberryCam.Benchmark.csproj", "{4BFB73B4-CC67-44EB-84C0-A10EC4A7E09F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,6 +41,10 @@ Global
 		{F594C912-331D-4B00-862A-D8505A76FF3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F594C912-331D-4B00-862A-D8505A76FF3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F594C912-331D-4B00-862A-D8505A76FF3F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4BFB73B4-CC67-44EB-84C0-A10EC4A7E09F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4BFB73B4-CC67-44EB-84C0-A10EC4A7E09F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4BFB73B4-CC67-44EB-84C0-A10EC4A7E09F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4BFB73B4-CC67-44EB-84C0-A10EC4A7E09F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
