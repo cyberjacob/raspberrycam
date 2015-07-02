@@ -23,7 +23,7 @@ namespace RaspberryCam.CompressionLearning
                 codec = videoDevice;
                 Console.WriteLine(videoDevice.Name);
             }
-
+            
             // instantiate AVI writer, use WMV3 codec
             AVIWriter writer = new AVIWriter(codec.MonikerString);
             // create new AVI file and open it

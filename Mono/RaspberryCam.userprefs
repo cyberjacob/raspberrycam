@@ -1,0 +1,12 @@
+﻿<Properties StartupItem="RaspberryCam\RaspberryCam.csproj">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="RaspberryCam.CompressionLearning\Program.cs">
+    <Files>
+      <File FileName="RaspberryCam.CompressionLearning\Program.cs" Line="11" Column="18" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
